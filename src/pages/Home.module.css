@@ -1,0 +1,71 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+.header {
+  text-align: center;
+}
+
+.appTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 4px;
+}
+
+.counter {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+
+.cardArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.navButton {
+  font-size: 15px;
+  color: #ffffff;
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  opacity: 0.9;
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .controls {
+    flex-direction: column;
+    width: min(90vw, 480px);
+  }
+
+  .navButton,
+  .controls > select {
+    width: 100%;
+  }
+}
