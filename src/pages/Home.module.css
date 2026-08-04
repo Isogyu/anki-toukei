@@ -53,6 +53,47 @@
   opacity: 0.9;
 }
 
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.empty {
+  width: min(90vw, 480px);
+  height: min(60vh, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 15px;
+  color: #666666;
+  border: 2px dashed #cccccc;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.checkedOnlyToggle {
+  font-size: 14px;
+  color: var(--color-accent);
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  padding: 8px 18px;
+  cursor: pointer;
+}
+
+.checkedOnlyToggle.active {
+  color: #ffffff;
+  background-color: var(--color-accent);
+}
+
+.checkedOnlyToggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .navButton:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;

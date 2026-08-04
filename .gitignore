@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# テスト成果物（テストエージェント生成）
+test-plan.md
+test-report.md

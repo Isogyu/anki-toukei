@@ -23,14 +23,14 @@ npm run dev       # 開発サーバー起動 (http://localhost:5173)
 
 ## スクリプト
 
-| コマンド | 内容 |
-| --- | --- |
-| `npm run dev` | 開発サーバーを起動 |
-| `npm run build` | 型チェック + 本番ビルド |
-| `npm run lint` | ESLint によるチェック |
-| `npm run format` | Prettier で整形 |
+| コマンド           | 内容                                            |
+| ------------------ | ----------------------------------------------- |
+| `npm run dev`      | 開発サーバーを起動                              |
+| `npm run build`    | 型チェック + 本番ビルド                         |
+| `npm run lint`     | ESLint によるチェック                           |
+| `npm run format`   | Prettier で整形                                 |
 | `npm run validate` | カードデータ (`src/data/cards.json`) の品質検証 |
-| `npm run preview` | ビルド結果のプレビュー |
+| `npm run preview`  | ビルド結果のプレビュー                          |
 
 ## 操作方法
 
@@ -38,6 +38,7 @@ npm run dev       # 開発サーバー起動 (http://localhost:5173)
 - 「← 前へ」「次へ →」でカテゴリー内をループ送りできます（送るたびに表面へリセット）。
 - 中央のドロップダウンでカテゴリーを切り替えられます。先頭の「すべて」を選ぶと全カードを id 順に通し表示します。
 - キーボード: `←` / `→` で前後移動、`Space` / `Enter` でカードを反転（カードにフォーカス時）。
+- カード右上の ☆ を押すとチェックが付きます（★）。チェックは `localStorage` に保存され、リロードしても残ります。下部の「チェックしたカードを見直す」を押すと、チェック済みのカードだけを（現在のカテゴリー内で）見直せます。
 
 ## カードの追加・編集
 
@@ -47,12 +48,12 @@ npm run dev       # 開発サーバー起動 (http://localhost:5173)
 
 ```ts
 interface Card {
-  id: number;        // 1始まりの連番。重複禁止
+  id: number; // 1始まりの連番。重複禁止
   category: Category; // 定義済みカテゴリーのいずれか
-  title: string;      // 見出し（1テーマ、カテゴリー内で一意）
-  formula: string;    // LaTeX文字列。用語カードなど公式がなければ空文字 ""
-  meaning: string;    // 意味（1〜2文）
-  usage: string[];    // 使う場面のタグ（1〜3個）
+  title: string; // 見出し（1テーマ、カテゴリー内で一意）
+  formula: string; // LaTeX文字列。用語カードなど公式がなければ空文字 ""
+  meaning: string; // 意味（1〜2文）
+  usage: string[]; // 使う場面のタグ（1〜3個）
 }
 ```
 

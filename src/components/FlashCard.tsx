@@ -6,10 +6,18 @@ import styles from './FlashCard.module.css';
 interface FlashCardProps {
   card: Card;
   flipped: boolean;
+  checked: boolean;
   onFlip: () => void;
+  onToggleCheck: () => void;
 }
 
-function FlashCard({ card, flipped, onFlip }: FlashCardProps) {
+function FlashCard({
+  card,
+  flipped,
+  checked,
+  onFlip,
+  onToggleCheck,
+}: FlashCardProps) {
   const formulaHtml = useMemo(() => {
     if (card.formula.trim() === '') return '';
     return katex.renderToString(card.formula, {
@@ -17,6 +25,21 @@ function FlashCard({ card, flipped, onFlip }: FlashCardProps) {
       displayMode: true,
     });
   }, [card.formula]);
+
+  const checkButton = (
+    <button
+      type="button"
+      className={`${styles.checkButton} ${checked ? styles.checked : ''}`}
+      aria-label={checked ? 'チェックを外す' : 'チェックを付ける'}
+      aria-pressed={checked}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleCheck();
+      }}
+    >
+      {checked ? '★' : '☆'}
+    </button>
+  );
 
   return (
     <div
@@ -35,11 +58,13 @@ function FlashCard({ card, flipped, onFlip }: FlashCardProps) {
       <div className={`${styles.card} ${flipped ? styles.isFlipped : ''}`}>
         <div className={`${styles.face} ${styles.front}`}>
           <span className={styles.categoryTag}>{card.category}</span>
+          {checkButton}
           <h2 className={styles.title}>{card.title}</h2>
           <span className={styles.hint}>タップして解答を表示</span>
         </div>
         <div className={`${styles.face} ${styles.back}`}>
           <span className={styles.categoryTag}>{card.category}</span>
+          {checkButton}
           <div className={styles.backContent}>
             {card.formula.trim() !== '' && (
               <div className={styles.section}>
