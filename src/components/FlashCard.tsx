@@ -9,6 +9,7 @@ interface FlashCardProps {
   checked: boolean;
   onFlip: () => void;
   onToggleCheck: () => void;
+  onDelete?: () => void;
 }
 
 function FlashCard({
@@ -17,6 +18,7 @@ function FlashCard({
   checked,
   onFlip,
   onToggleCheck,
+  onDelete,
 }: FlashCardProps) {
   const formulaHtml = useMemo(() => {
     if (card.formula.trim() === '') return '';
@@ -87,6 +89,18 @@ function FlashCard({
                 ))}
               </ul>
             </div>
+            {onDelete && (
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                このカードを削除
+              </button>
+            )}
           </div>
         </div>
       </div>
