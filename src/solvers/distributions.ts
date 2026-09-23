@@ -42,7 +42,7 @@ export function binom_prob(rng: RNG): SolvedQuestion {
     steps: [
       `P(X=${k}) = C(${n},${k}) × ${fmtP(p)}^${k} × ${fmtP(1 - p)}^${n - k}`,
       `C(${n},${k}) = ${comb(n, k)}`,
-      `電卓: ${fmtP(p)}^${k} → ×${fmtP(1 - p)}^${n - k} → ×${comb(n, k)}`,
+      `電卓: ${fmtP(p)} を ${k} 回掛ける → ×${fmtP(1 - p)} を ${n - k} 回掛ける → ×${comb(n, k)}`,
       `= ${fmt(ans, 4)}`,
     ],
     verify: { kind: 'binom_pmf', params: { n, k, p }, expected: ans },
@@ -299,30 +299,43 @@ export function binom_normal(rng: RNG): SolvedQuestion {
 }
 
 export function exp_prob(rng: RNG): SolvedQuestion {
+  // 普通電卓には e^x キーがないので、問題文で e^{−λt} の値を与える
   const lam = pick(rng, [0.5, 1, 2, 0.1, 0.2]);
   const t = randInt(rng, 1, 5);
-  const ans = Math.exp(-lam * t);
+  const ev = Math.exp(-lam * t);
+  const askUpper = rng() < 0.5;
+  const ans = askUpper ? ev : 1 - ev;
   return {
-    text: `平均到着間隔が $1/\\lambda$（$\\lambda=${fmtP(lam)}$）の指数分布で、待ち時間が ${t} を超える確率 $P(X>${t})$ を求めよ。`,
+    text: `平均到着間隔が $1/\\lambda$（$\\lambda=${fmtP(lam)}$）の指数分布で、待ち時間が ${t} ${
+      askUpper ? 'を超える確率' : '以下の確率'
+    } $P(X${askUpper ? '>' : '\\le'}${t})$ を求めよ（$e^{-${fmt(lam * t, 2)}}=${fmt(ev, 4)}$ を使ってよい）。`,
     choices: numChoices(
       rng,
       ans,
       [
-        { value: 1 - ans, why: '累積確率 P(X≤t) を答えた' },
         {
-          value: lam * Math.exp(-lam * t),
-          why: '確率密度 f(t) を答えた（密度≠確率）',
+          value: askUpper ? 1 - ev : ev,
+          why: askUpper
+            ? '累積確率 P(X≤t) を答えた'
+            : '生存関数 P(X>t) を答えた',
         },
-        { value: Math.exp(-lam), why: 't を掛け忘れた' },
+        {
+          value: lam * ev,
+          why: '確率密度 f(t)=λe^{−λt} を答えた（密度≠確率）',
+        },
+        { value: Math.exp(-lam), why: 'λt でなく λ だけを指数にした' },
       ],
       4,
     ),
     steps: [
-      `指数分布の生存関数: P(X>t) = e^{−λt}`,
-      `= e^{−${fmtP(lam)}×${t}} = e^{−${fmt(lam * t, 2)}} = ${fmt(ans, 4)}`,
-      `電卓: ${fmt(lam * t, 2)} → e^x の前に符号を負に。`,
+      `指数分布: P(X>t) = e^{−λt}、P(X≤t) = 1−e^{−λt}`,
+      `λt = ${fmtP(lam)}×${t} = ${fmt(lam * t, 2)} → e^{−λt} = ${fmt(ev, 4)}`,
+      askUpper
+        ? `P(X>${t}) = ${fmt(ev, 4)}`
+        : `P(X≤${t}) = 1 − ${fmt(ev, 4)} = ${fmt(ans, 4)}`,
+      `e^x キーは不要 — 問題文の値をそのまま使う。`,
     ],
-    verify: { kind: 'exp_sf', params: { lam, t }, expected: ans },
+    verify: { kind: 'exp_sf', params: { lam, t }, expected: ev },
   };
 }
 

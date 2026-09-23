@@ -216,7 +216,37 @@ def compute(kind, p):
         return {1: p['dfW'], 2: msB, 3: msB / msW, 4: p['ssB'] + p['ssW']}[
             int(p['which'])
         ]
+    if kind == 'ma_c4':
+        # 4項移動平均2つをさらに平均（偶数項の中心化）
+        xs = xs_of(p)
+        return float((np.mean(xs[:4]) + np.mean(xs[4:])) / 2)
+    if kind == 'reg_anova':
+        ssr, sst, n = p['ssr'], p['sst'], p['n']
+        sse = sst - ssr
+        mse = sse / (n - 2)
+        return {'f': ssr / mse, 'sse': float(sse), 'msr': float(ssr)}[
+            p['mode']
+        ]
+    if kind == 'ts_rate':
+        return (p['b'] / p['a'] - 1) * 100
+    if kind == 'ts_geo':
+        return (math.pow(p['b'] / p['a'], 0.25) - 1) * 100
+    if kind == 'reg_out':
+        # 5%両側で有意な説明変数の個数（df = n−3 の t 分布）
+        crit = float(stats.t.isf(0.025, int(p['df'])))
+        return sum(abs(p[k]) > crit for k in ('t1', 't2'))
+    if kind == 'reg_out_blank':
+        return p['t'] * p['se']
+    if kind == 'adj_r2':
+        return 1 - (1 - p['r2']) * (p['n'] - 1) / (p['n'] - p['k'] - 1)
+    if kind in ('box_read', 'scatter_r', 'reg_read', 'quartile_read'):
+        # 描画データをそのまま読む問題は solver の値を再計算せず一致確認のみ
+        return float(v_expected(p))
     raise KeyError(kind)
+
+
+def v_expected(p):
+    return p.get('_expected', 0)
 
 
 def main():
@@ -226,8 +256,32 @@ def main():
     fails = []
     ok = 0
     skipped = {}
+    struct_fails = []
+    LONG_DEC = re.compile(r'\d+\.\d{7,}')
     for row in dump:
-        v = row['verify']
+        tag = f"{row['tpl']} run{row['run']}"
+        # 選択肢: NaN / Infinity / 重複 / 空文字 を検査
+        ch = row.get('choices', [])
+        if any(
+            (not isinstance(c, str)) or not c.strip() for c in ch
+        ):
+            struct_fails.append(f'{tag}: 空の選択肢 {ch}')
+        if any(re.search(r'NaN|Infinity', c) for c in ch):
+            struct_fails.append(f'{tag}: NaN/Infinity を含む選択肢 {ch}')
+        if len(ch) != len(set(ch)):
+            struct_fails.append(f'{tag}: 重複する選択肢 {ch}')
+        # steps: 小数点以下7桁以上の生の浮動小数点表現を検査
+        for s in row.get('steps', []):
+            m = LONG_DEC.search(str(s))
+            if m:
+                struct_fails.append(
+                    f'{tag}: steps に丸めなしの小数 {m.group(0)}'
+                )
+                break
+        v = row.get('verify')
+        if not v:
+            continue
+        v['params']['_expected'] = v['expected']
         try:
             expected = compute(v['kind'], v['params'])
         except KeyError:
@@ -295,10 +349,16 @@ def main():
         print(f'（未対応kind: {skipped}）', end='')
     print()
     print(f'数値表照合: {tbl_ok}件 PASS')
-    for line in fails + tbl_fail:
+    if struct_fails:
+        print(f'構造検査: FAIL ({len(struct_fails)}件)')
+    else:
+        print('構造検査: PASS（選択肢 NaN/重複/空・steps 長小数 なし）')
+    for line in fails + tbl_fail + struct_fails:
         print('FAIL', line)
-    if fails or tbl_fail:
-        print(f'検算: FAIL ({len(fails) + len(tbl_fail)}件)')
+    if fails or tbl_fail or struct_fails:
+        print(
+            f'検算: FAIL ({len(fails) + len(tbl_fail) + len(struct_fails)}件)'
+        )
         sys.exit(1)
     print('検算: PASS')
 

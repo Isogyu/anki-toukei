@@ -55,6 +55,12 @@ export function QuestionCard({
       <p className={styles.text}>
         <Tex text={q.text} />
       </p>
+      {q.figure && (
+        <div
+          className={styles.figure}
+          dangerouslySetInnerHTML={{ __html: q.figure }}
+        />
+      )}
       <div className={styles.choices}>
         {q.choices.map((c, i) => {
           let cls = styles.choice;

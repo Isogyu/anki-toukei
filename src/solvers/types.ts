@@ -15,6 +15,7 @@ export interface VerifyPayload {
 
 export interface SolvedQuestion {
   text: string; // 問題文（$...$ で KaTeX インライン可）
+  figure?: string; // 内部生成の SVG/HTML 図表（描画データ＝解答根拠）
   choices: Choice[]; // 4〜5個、correct はちょうど1つ
   steps: string[]; // 解答・普通電卓での手順
   verify?: VerifyPayload; // scipy 検算用の機械可読データ
@@ -43,6 +44,13 @@ export function numChoices(
   const seen = new Set<string>([fmt(correct)]);
   const out: Choice[] = [{ text: fmt(correct), correct: true }];
   for (const w of wrongs) {
+    // NaN・Infinity・桁違いの外れ値（正解の10倍超・1/10未満）は誤答にしない
+    if (!Number.isFinite(w.value)) continue;
+    const ac = Math.abs(correct);
+    if (ac > 1e-9) {
+      const r = Math.abs(w.value) / ac;
+      if (r > 10 || r < 0.1) continue;
+    } else if (Math.abs(w.value) > 10) continue;
     const t = fmt(w.value);
     if (!seen.has(t) && out.length < 5) {
       seen.add(t);

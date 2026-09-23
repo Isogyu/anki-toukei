@@ -10,16 +10,25 @@ import { ReportButton } from '../components/ReportButton';
 import styles from './Mock.module.css';
 
 const templates = questionsData as QuestionTemplate[];
-const TIME_LIMIT = 25 * 60; // 秒
-const NQ = 10;
+
+const MODES = {
+  mini: { label: 'ミニ模試', n: 10, time: 25 * 60, desc: '全10問・25分' },
+  full: {
+    label: '本番モード',
+    n: 35,
+    time: 90 * 60,
+    desc: '全35問・90分（CBT本番相当）',
+  },
+} as const;
+type ModeKey = keyof typeof MODES;
 
 interface MockItem {
   tpl: QuestionTemplate;
   q: SolvedQuestion;
 }
 
-/** カテゴリーをまたいで10問選ぶ（できるだけ被らないように）。 */
-function buildExam(rng: () => number): MockItem[] {
+/** カテゴリーをまたいで n 問選ぶ（各カテゴリ1問ずつ→残りランダム）。 */
+function buildExam(rng: () => number, n: number): MockItem[] {
   const byCat = new Map<Category, QuestionTemplate[]>();
   for (const t of templates) {
     const l = byCat.get(t.category) ?? [];
@@ -28,13 +37,12 @@ function buildExam(rng: () => number): MockItem[] {
   }
   const cats = shuffle(rng, [...byCat.keys()]);
   const picked: QuestionTemplate[] = [];
-  // 各カテゴリから1問ずつ → 足りなければランダム補充
   for (const c of cats) {
-    if (picked.length >= NQ) break;
+    if (picked.length >= n) break;
     picked.push(pickRandom(rng, byCat.get(c)!));
   }
   const rest = templates.filter((t) => !picked.includes(t));
-  while (picked.length < NQ && rest.length > 0) {
+  while (picked.length < n && rest.length > 0) {
     const i = Math.floor(rng() * rest.length);
     picked.push(rest[i]);
     rest.splice(i, 1);
@@ -56,12 +64,18 @@ interface Props {
 
 export default function Mock({ isReported, onToggleReport }: Props) {
   const rng = useRef(Math.random);
+  const [mode, setMode] = useState<ModeKey>('mini');
   const [exam, setExam] = useState<MockItem[] | null>(null);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
-  const [remain, setRemain] = useState(TIME_LIMIT);
+  const [flags, setFlags] = useState<boolean[]>([]);
+  const [times, setTimes] = useState<number[]>([]); // 各問に費やした秒
+  const [remain, setRemain] = useState(MODES.mini.time);
   const [finished, setFinished] = useState(false);
+  const qStart = useRef(0); // 現在の問題を開いた時刻
   const { record } = useQuizStats();
+
+  const conf = MODES[mode];
 
   // 残り時間カウントダウン
   useEffect(() => {
@@ -78,12 +92,32 @@ export default function Mock({ isReported, onToggleReport }: Props) {
     return () => clearInterval(t);
   }, [exam, finished]);
 
-  const start = () => {
-    setExam(buildExam(rng.current));
+  /** 現在の問題に費やした時間を確定してから fn を実行 */
+  const flushTime = () => {
+    const spent = Math.round((Date.now() - qStart.current) / 1000);
+    setTimes((prev) => {
+      const n = [...prev];
+      n[idx] = (n[idx] ?? 0) + spent;
+      return n;
+    });
+  };
+  const goTo = (i: number) => {
+    flushTime();
+    setIdx(i);
+    qStart.current = Date.now();
+  };
+
+  const start = (m: ModeKey) => {
+    const c = MODES[m];
+    setMode(m);
+    setExam(buildExam(rng.current, c.n));
     setIdx(0);
-    setAnswers(Array(NQ).fill(null));
-    setRemain(TIME_LIMIT);
+    setAnswers(Array(c.n).fill(null));
+    setFlags(Array(c.n).fill(false));
+    setTimes(Array(c.n).fill(0));
+    setRemain(c.time);
     setFinished(false);
+    qStart.current = Date.now();
   };
 
   const score = useMemo(() => {
@@ -97,7 +131,7 @@ export default function Mock({ isReported, onToggleReport }: Props) {
 
   const finish = () => {
     if (!exam) return;
-    // 成績を記録（未回答は誤答扱いで記録しない）
+    flushTime();
     exam.forEach((it, i) => {
       const a = answers[i];
       if (a !== null) record(it.tpl.id, it.q.choices[a].correct);
@@ -113,20 +147,36 @@ export default function Mock({ isReported, onToggleReport }: Props) {
     return (
       <div className={styles.wrap}>
         <div className={styles.intro}>
-          <h2 className={styles.h2}>ミニ模試</h2>
+          <h2 className={styles.h2}>模試</h2>
           <p className={styles.note}>
-            全{NQ}問・25分。本番同様、解答中は正誤を表示しません。
-            カテゴリー横断で出題します。
+            本番同様、解答中は正誤を表示しません。
+            見直しフラグで後から戻れます。カテゴリー横断で出題します。
           </p>
-          <button type="button" className={styles.startBtn} onClick={start}>
-            開始する
-          </button>
+          {(['mini', 'full'] as ModeKey[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              className={styles.startBtn}
+              onClick={() => start(m)}
+            >
+              {MODES[m].label}（{MODES[m].desc}）
+            </button>
+          ))}
         </div>
       </div>
     );
   }
 
   if (finished) {
+    // 分野別正答率
+    const catStat = new Map<Category, { ok: number; total: number }>();
+    exam.forEach((it, i) => {
+      const s = catStat.get(it.tpl.category) ?? { ok: 0, total: 0 };
+      s.total++;
+      if (answers[i] !== null && it.q.choices[answers[i]!].correct) s.ok++;
+      catStat.set(it.tpl.category, s);
+    });
+    const answered = answers.filter((a) => a !== null).length;
     return (
       <div className={styles.wrap}>
         <div className={styles.resultCard}>
@@ -134,8 +184,46 @@ export default function Mock({ isReported, onToggleReport }: Props) {
             {score} / {exam.length} 問正解
           </p>
           <p className={styles.note}>
-            {remain > 0 ? `残り ${mm}:${ss} で終了` : '時間切れ（25分経過）'}
+            {conf.label}・回答済み {answered}問・
+            {remain > 0 ? `残り ${mm}:${ss} で終了` : '時間切れ'}
+            {mode === 'full' &&
+              ` / 得点率 ${Math.round((score / exam.length) * 100)}%（60%が合格目安）`}
           </p>
+        </div>
+        <div className={styles.resultCard}>
+          <h3 className={styles.h3}>分野別の正答率</h3>
+          <table className={styles.catTable}>
+            <tbody>
+              {[...catStat.entries()]
+                .sort((a, b) => a[1].ok / a[1].total - b[1].ok / b[1].total)
+                .map(([cat, s]) => (
+                  <tr key={cat}>
+                    <td className={styles.catName}>{cat}</td>
+                    <td className={styles.catBar}>
+                      <span
+                        className={styles.catFill}
+                        style={{ width: `${(s.ok / s.total) * 100}%` }}
+                      />
+                    </td>
+                    <td className={styles.catNum}>
+                      {s.ok}/{s.total}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        <div className={styles.resultCard}>
+          <h3 className={styles.h3}>1問あたりの所要時間</h3>
+          <div className={styles.timeList}>
+            {exam.map((_, i) => (
+              <span key={i} className={styles.timeChip}>
+                Q{i + 1}: {Math.floor((times[i] ?? 0) / 60)}分
+                {String((times[i] ?? 0) % 60).padStart(2, '0')}秒
+                {flags[i] ? ' 🚩' : ''}
+              </span>
+            ))}
+          </div>
         </div>
         {exam.map((it, i) => {
           const a = answers[i];
@@ -144,6 +232,7 @@ export default function Mock({ isReported, onToggleReport }: Props) {
             <div key={i} className={styles.reviewCard}>
               <p className={styles.reviewHead}>
                 Q{i + 1} [{it.tpl.category}] {it.tpl.label}
+                {flags[i] && <span title="見直しフラグ"> 🚩</span>}
                 <span className={styles.reviewMeta}>
                   <ReportButton
                     itemKey={`q:${it.tpl.id}`}
@@ -158,6 +247,12 @@ export default function Mock({ isReported, onToggleReport }: Props) {
               <p className={styles.reviewText}>
                 <Tex text={it.q.text} />
               </p>
+              {it.q.figure && (
+                <div
+                  className={styles.reviewFigure}
+                  dangerouslySetInnerHTML={{ __html: it.q.figure }}
+                />
+              )}
               <p className={styles.reviewAns}>
                 正解: <Tex text={it.q.choices.find((c) => c.correct)!.text} />
                 {a !== null &&
@@ -176,8 +271,12 @@ export default function Mock({ isReported, onToggleReport }: Props) {
             </div>
           );
         })}
-        <button type="button" className={styles.startBtn} onClick={start}>
-          もう一度（新しい10問）
+        <button
+          type="button"
+          className={styles.startBtn}
+          onClick={() => start(mode)}
+        >
+          もう一度（新しい{conf.n}問）
         </button>
       </div>
     );
@@ -207,6 +306,12 @@ export default function Mock({ isReported, onToggleReport }: Props) {
         <p className={styles.qtext}>
           <Tex text={item.q.text} />
         </p>
+        {item.q.figure && (
+          <div
+            className={styles.reviewFigure}
+            dangerouslySetInnerHTML={{ __html: item.q.figure }}
+          />
+        )}
         <div className={styles.choices}>
           {item.q.choices.map((c, i) => (
             <button
@@ -225,6 +330,19 @@ export default function Mock({ isReported, onToggleReport }: Props) {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          className={`${styles.flagBtn} ${flags[idx] ? styles.flagged : ''}`}
+          onClick={() =>
+            setFlags((prev) => {
+              const n = [...prev];
+              n[idx] = !n[idx];
+              return n;
+            })
+          }
+        >
+          {flags[idx] ? '🚩 見直す（解除）' : '🚩 あとで見直す'}
+        </button>
       </div>
 
       <div className={styles.nav}>
@@ -232,7 +350,7 @@ export default function Mock({ isReported, onToggleReport }: Props) {
           type="button"
           className={styles.navBtn}
           disabled={idx === 0}
-          onClick={() => setIdx((i) => i - 1)}
+          onClick={() => goTo(idx - 1)}
         >
           ← 前へ
         </button>
@@ -240,7 +358,7 @@ export default function Mock({ isReported, onToggleReport }: Props) {
           <button
             type="button"
             className={styles.navBtn}
-            onClick={() => setIdx((i) => i + 1)}
+            onClick={() => goTo(idx + 1)}
           >
             次へ →
           </button>
@@ -256,7 +374,25 @@ export default function Mock({ isReported, onToggleReport }: Props) {
       </div>
       <p className={styles.answered}>
         回答済み {answers.filter((a) => a !== null).length} / {exam.length}
+        {flags.some(Boolean) && ` ・ 🚩${flags.filter(Boolean).length}`}
       </p>
+      {mode === 'full' && (
+        <div className={styles.qIndex}>
+          {exam.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${styles.qNum} ${
+                i === idx ? styles.qNumCur : ''
+              } ${answers[i] !== null ? styles.qNumDone : ''}`}
+              onClick={() => goTo(i)}
+            >
+              {i + 1}
+              {flags[i] ? '🚩' : ''}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

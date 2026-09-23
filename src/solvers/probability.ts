@@ -91,7 +91,7 @@ export function bayes_ppv(rng: RNG): SolvedQuestion {
       `真陽性の割合 = ${fmtP(sens)} × ${fmtP(prev)} = ${fmt(num, 4)}`,
       `偽陽性の割合 = (1−${fmtP(spec)}) × (1−${fmtP(prev)}) = ${fmt((1 - spec) * (1 - prev), 4)}`,
       `PPV = 真陽性 ÷ (真陽性 + 偽陽性) = ${fmt(num, 4)} ÷ ${fmt(den, 4)} = ${fmt(ppv, 3)}`,
-      `電卓: ${sens}×${prev} → メモリ。 ${1 - spec}×${fmt(1 - prev, 2)} → メモリに足す → メモリで割る。`,
+      `電卓: ${fmtP(sens)}×${fmtP(prev)} → メモリ。 ${fmtP(1 - spec)}×${fmt(1 - prev, 2)} → メモリに足す → メモリで割る。`,
     ],
     verify: {
       kind: 'bayes_ppv',
@@ -204,7 +204,7 @@ export function linear_ev(rng: RNG): SolvedQuestion {
       ),
       steps: [
         `V(aX+b) = a²V(X)（定数 b は分散に影響しない）`,
-        `= ${a}² × ${vx} = ${a * a} × ${vx} = ${ans}`,
+        `= (${a})² × ${vx} = ${a * a} × ${vx} = ${ans}`,
       ],
       verify: { kind: 'v_linear', params: { a, vx }, expected: ans },
     };
