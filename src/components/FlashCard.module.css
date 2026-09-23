@@ -156,3 +156,104 @@
   outline: 2px solid #b91c1c;
   outline-offset: 2px;
 }
+
+.corner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.corner .checkButton {
+  position: static;
+}
+
+.reportWrap {
+  display: flex;
+  align-items: center;
+}
+
+.ratingBadge {
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.badgeKnown {
+  color: #15803d;
+  border: 1px solid #15803d;
+}
+
+.badgeDoubt {
+  color: #b45309;
+  border: 1px solid #b45309;
+}
+
+.badgeUnknown {
+  color: #b91c1c;
+  border: 1px solid #b91c1c;
+}
+
+.pitfalls {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+.refs {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+}
+
+.rateRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rateButton {
+  flex: 1;
+  font-size: 14px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 2px solid;
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.rateKnown {
+  color: #15803d;
+  border-color: #15803d;
+}
+
+.rateDoubt {
+  color: #b45309;
+  border-color: #b45309;
+}
+
+.rateUnknown {
+  color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.rateActive {
+  color: #ffffff;
+}
+
+.rateActive.rateKnown {
+  background: #15803d;
+}
+
+.rateActive.rateDoubt {
+  background: #b45309;
+}
+
+.rateActive.rateUnknown {
+  background: #b91c1c;
+}
