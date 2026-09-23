@@ -1,0 +1,153 @@
+.card {
+  width: min(92vw, 560px);
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.header {
+  font-size: 13px;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice {
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border: 2px solid #cccccc;
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.choice:active {
+  border-color: var(--color-accent);
+}
+
+.choice.correct {
+  border-color: #15803d;
+  background: #f0fdf4;
+}
+
+.choice.wrong {
+  border-color: #b91c1c;
+  background: #fef2f2;
+}
+
+.choice.dim {
+  opacity: 0.55;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+}
+
+.ok {
+  margin: 0;
+  font-weight: bold;
+  color: #15803d;
+}
+
+.ng {
+  margin: 0;
+  font-weight: bold;
+  color: #b91c1c;
+}
+
+.why {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+  background: #fffbeb;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333333;
+}
+
+.refs {
+  margin: 0;
+  font-size: 12px;
+  color: #666666;
+}
+
+.missRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.missLabel {
+  font-size: 13px;
+  color: #666666;
+}
+
+.missButton {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #999999;
+  background: var(--color-bg);
+  color: #333333;
+  cursor: pointer;
+}
+
+.missActive {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.next {
+  align-self: stretch;
+  font-size: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 48px;
+}

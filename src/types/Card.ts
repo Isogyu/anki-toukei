@@ -20,6 +20,11 @@ export interface Card {
   formula: string; // LaTeX文字列。公式が存在しない用語カードは空文字 "" を許可。
   meaning: string; // 意味（1〜2文、40字以内目安）
   usage: string[]; // 使う場面のタグ（1〜3個、名詞句）
+  pitfalls?: string[]; // ひっかけポイント（任意）
+  calcTips?: string; // 普通電卓でのコツ（任意）
+  ohm?: string; // オーム社『統計検定2級完全対策テキスト』節番号 例 "6-2"
+  official?: string; // 公式テキスト『改訂版 統計学基礎』節番号 例 "4.4"
+  refs?: string[]; // 参照URL（任意）
 }
 
 export const CATEGORIES: Category[] = [

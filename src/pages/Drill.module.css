@@ -1,0 +1,197 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 96px;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+.sub {
+  font-size: 13px;
+  color: #666666;
+  margin: 0;
+}
+
+.bar {
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.select {
+  font-size: 14px;
+  padding: 8px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: var(--color-bg);
+  min-height: 44px;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.timer {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-accent);
+}
+
+.stat {
+  font-size: 12px;
+  color: #666666;
+}
+
+.problem {
+  width: min(92vw, 560px);
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.problemHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patId {
+  font-size: 12px;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.variant {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+
+.group {
+  width: min(92vw, 560px);
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.legend {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-accent);
+  margin-bottom: 2px;
+}
+
+.opt {
+  font-size: 14px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 2px solid #cccccc;
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: pointer;
+  min-height: 44px;
+  line-height: 1.4;
+}
+
+.opt.selected {
+  border-color: var(--color-accent);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.opt.good {
+  border-color: #15803d;
+  background: #f0fdf4;
+}
+
+.opt.bad {
+  border-color: #b91c1c;
+  background: #fef2f2;
+}
+
+.submit {
+  width: min(92vw, 560px);
+  font-size: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.submit:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.feedback {
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ok {
+  margin: 0;
+  font-weight: bold;
+  color: #15803d;
+}
+
+.ng {
+  margin: 0;
+  font-weight: bold;
+  color: #b91c1c;
+}
+
+.rule {
+  margin: 0;
+  font-size: 14px;
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step {
+  margin: 0;
+  font-size: 13px;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.refs {
+  margin: 0;
+  font-size: 12px;
+  color: #666666;
+}
+
+.pstat {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-accent);
+}

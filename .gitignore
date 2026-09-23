@@ -26,3 +26,4 @@ dist-ssr
 # テスト成果物（テストエージェント生成）
 test-plan*.md
 test-report*.md
+scripts/.verify_dump.json

@@ -9,21 +9,39 @@ import CategorySelector, {
 import { useCheckedCards } from '../hooks/useCheckedCards';
 import { useUserCards } from '../hooks/useUserCards';
 import type { NewCardInput } from '../hooks/useUserCards';
+import { useRatings, ratingWeight } from '../hooks/useRatings';
 import AddCardForm from '../components/AddCardForm';
 import styles from './Home.module.css';
 
 const builtinCards = cardsData as Card[];
 
-function Home() {
+interface HomeProps {
+  /** 弱点ページから指定されたカードID。あればそのカードを開く。 */
+  focusCardId: number | null;
+  onConsumeFocus: () => void;
+  onStartToday: () => void;
+  isReported: (key: string) => boolean;
+  onToggleReport: (key: string) => void;
+}
+
+function Home({
+  focusCardId,
+  onConsumeFocus,
+  onStartToday,
+  isReported,
+  onToggleReport,
+}: HomeProps) {
   const [filter, setFilter] = useState<CategoryFilter>(ALL);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [checkedOnly, setCheckedOnly] = useState(false);
+  const [weakFirst, setWeakFirst] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [pendingFocusId, setPendingFocusId] = useState<number | null>(null);
   const { checkedIds, isChecked, toggleChecked } = useCheckedCards();
   const { userCards, addCard, removeCard, isUserCard } =
     useUserCards(builtinCards);
+  const { ratings, rate, getRating } = useRatings();
 
   const cards = useMemo(() => [...builtinCards, ...userCards], [userCards]);
 
@@ -37,8 +55,13 @@ function Home() {
     let list =
       filter === ALL ? cards : cards.filter((c) => c.category === filter);
     if (checkedOnly) list = list.filter((c) => checkedIds.has(c.id));
-    return [...list].sort((a, b) => a.id - b.id);
-  }, [cards, filter, checkedOnly, checkedIds]);
+    return [...list].sort(
+      (a, b) =>
+        (weakFirst
+          ? ratingWeight(ratings[b.id]) - ratingWeight(ratings[a.id])
+          : 0) || a.id - b.id,
+    );
+  }, [cards, filter, checkedOnly, checkedIds, weakFirst, ratings]);
 
   const count = visibleCards.length;
 
@@ -82,13 +105,14 @@ function Home() {
       setShowAddForm(false);
       setFilter(ALL);
       setCheckedOnly(false);
+      setWeakFirst(false);
       setFlipped(false);
       setPendingFocusId(created.id);
     },
     [addCard],
   );
 
-  // 追加直後のカードへ移動する
+  // 追加直後 or 弱点ページから指定されたカードへ移動する
   useEffect(() => {
     if (pendingFocusId === null) return;
     const pos = visibleCards.findIndex((c) => c.id === pendingFocusId);
@@ -97,6 +121,17 @@ function Home() {
       setPendingFocusId(null);
     }
   }, [pendingFocusId, visibleCards]);
+
+  useEffect(() => {
+    if (focusCardId === null) return;
+    setFilter(ALL);
+    setCheckedOnly(false);
+    setWeakFirst(false);
+    setFlipped(false);
+    setPendingFocusId(focusCardId);
+    onConsumeFocus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusCardId]);
 
   const handleDeleteCurrent = useCallback(() => {
     if (!current) return;
@@ -122,6 +157,14 @@ function Home() {
         </p>
       </header>
 
+      <button
+        type="button"
+        className={styles.todayButton}
+        onClick={onStartToday}
+      >
+        🎯 今日のおすすめ20問
+      </button>
+
       <div className={styles.cardArea}>
         {current ? (
           <FlashCard
@@ -131,6 +174,10 @@ function Home() {
             onFlip={() => setFlipped((f) => !f)}
             onToggleCheck={() => toggleChecked(current.id)}
             onDelete={isUserCard(current.id) ? handleDeleteCurrent : undefined}
+            rating={getRating(current.id)}
+            onRate={(r) => rate(current.id, r)}
+            reported={isReported(`card:${current.id}`)}
+            onToggleReport={onToggleReport}
           />
         ) : (
           <p className={styles.empty}>
@@ -177,6 +224,16 @@ function Home() {
           {checkedOnly
             ? 'すべてのカードを表示'
             : `チェックしたカードを見直す (${checkedIds.size})`}
+        </button>
+        <button
+          type="button"
+          className={`${styles.checkedOnlyToggle} ${
+            weakFirst ? styles.active : ''
+          }`}
+          onClick={() => setWeakFirst((v) => !v)}
+          aria-pressed={weakFirst}
+        >
+          {weakFirst ? '弱点優先: ON' : '弱点優先: OFF'}
         </button>
         <button
           type="button"
