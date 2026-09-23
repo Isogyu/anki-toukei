@@ -17,7 +17,9 @@ const out: {
   tpl: string;
   solver: string;
   run: number;
-  verify: VerifyPayload;
+  verify?: VerifyPayload;
+  choices: string[];
+  steps: string[];
 }[] = [];
 let noVerify = 0;
 
@@ -29,11 +31,15 @@ for (const tpl of templates) {
   }
   for (let i = 0; i < RUNS; i++) {
     const q = solver(mulberry32(1000 + i * 97), tpl.pool);
-    if (q.verify) {
-      out.push({ tpl: tpl.id, solver: tpl.solver, run: i, verify: q.verify });
-    } else {
-      noVerify++;
-    }
+    out.push({
+      tpl: tpl.id,
+      solver: tpl.solver,
+      run: i,
+      verify: q.verify,
+      choices: q.choices.map((c) => c.text),
+      steps: q.steps,
+    });
+    if (!q.verify) noVerify++;
   }
 }
 

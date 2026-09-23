@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 96px;
 }
 
 .intro {
@@ -222,4 +223,117 @@
   font-size: 12px;
   color: #555555;
   line-height: 1.5;
+}
+
+.h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.catTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.catName {
+  font-size: 12px;
+  padding: 3px 6px 3px 0;
+  white-space: nowrap;
+}
+
+.catBar {
+  width: 100%;
+}
+
+.catBar span {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--color-accent);
+  min-width: 2px;
+}
+
+.catNum {
+  font-size: 12px;
+  text-align: right;
+  padding-left: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.timeChip {
+  font-size: 11px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.flagBtn {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #cccccc;
+  background: var(--color-bg);
+  color: #555555;
+  cursor: pointer;
+}
+
+.flagged {
+  border-color: #d97706;
+  color: #b45309;
+  background: #fffbeb;
+}
+
+.qIndex {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px;
+}
+
+.qNum {
+  font-size: 11px;
+  padding: 6px 2px;
+  border-radius: 6px;
+  border: 1px solid #cccccc;
+  background: var(--color-bg);
+  cursor: pointer;
+  min-height: 34px;
+  line-height: 1.1;
+}
+
+.qNumDone {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.qNumCur {
+  outline: 2px solid var(--color-accent);
+}
+
+.reviewFigure {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+.reviewFigure svg {
+  max-width: 100%;
+  height: auto;
+}
+.reviewFigure table {
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.reviewFigure th,
+.reviewFigure td {
+  border: 1px solid #cccccc;
+  padding: 3px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }

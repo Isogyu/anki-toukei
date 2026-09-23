@@ -350,25 +350,150 @@ export function anova_table(rng: RNG): SolvedQuestion {
   };
 }
 
+export function reg_anova(rng: RNG): SolvedQuestion {
+  // 単回帰の分散分析表: 回帰変動(df=1) / 残差変動(df=n-2) / 全変動(df=n-1)
+  const n = randInt(rng, 8, 20);
+  const r = pick(rng, [0.5, 0.6, 0.7, 0.8, 0.9]);
+  const sst = randInt(rng, 200, 900);
+  const ssr = Math.round(sst * r * r);
+  const sse = sst - ssr;
+  const msr = ssr / 1;
+  const mse = sse / (n - 2);
+  const f = msr / mse;
+  const mode = pick(rng, ['f', 'sse', 'msr'] as const);
+  const ans = mode === 'f' ? f : mode === 'sse' ? sse : msr;
+  const blank = { f: 'F 値', sse: '残差変動 S_E', msr: '回帰の平均平方 V_R' }[
+    mode
+  ];
+  return {
+    text: `単回帰（説明変数1個、n=${n}）の分散分析で、全変動 S_T=${sst}、回帰変動 S_R=${ssr} と分かった。表中の ${blank} を求めよ。`,
+    choices: numChoices(
+      rng,
+      ans,
+      [
+        mode !== 'sse'
+          ? { value: sse, why: 'S_E を求める問題ではない' }
+          : { value: ssr, why: '回帰変動 S_R を答えた（S_E = S_T−S_R）' },
+        mode !== 'f'
+          ? { value: f, why: 'F 値を求める問題ではない' }
+          : { value: mse, why: '分母の残差の平均平方を答えた' },
+        { value: ssr / n, why: '自由度を n とした（回帰の df=1）' },
+      ],
+      mode === 'f' ? 2 : 1,
+    ),
+    steps: [
+      `自由度: 回帰 1、残差 ${n - 2}、全体 ${n - 1}`,
+      `S_E = S_T − S_R = ${sst} − ${ssr} = ${sse}`,
+      `V_R = S_R/1 = ${msr}、V_E = S_E/${n - 2} = ${fmt(mse, 1)}`,
+      `F = V_R/V_E = ${msr} ÷ ${fmt(mse, 1)} = ${fmt(f, 2)}`,
+      `電卓: ${sse} ÷ ${n - 2} = → メモリ → ${msr} ÷ メモリ`,
+    ],
+    verify: {
+      kind: 'reg_anova',
+      params: { n, sst, ssr, mode },
+      expected: ans,
+    },
+  };
+}
+
 export function ma_calc(rng: RNG): SolvedQuestion {
-  const k = pick(rng, [3, 5]);
-  const n = k + randInt(rng, 3, 6);
+  const mode = pick(rng, ['centered', 'centered', 'even', 'back'] as const);
+  const n = randInt(rng, 9, 12);
   const ys = Array.from(
     { length: n },
     (_, i) => 20 + i * randInt(rng, 1, 4) + randInt(rng, 0, 5),
   );
+
+  if (mode === 'centered') {
+    // 奇数項の中心化移動平均（デフォルト）: t 期を中心に前後 h 期
+    const k = pick(rng, [3, 5]);
+    const h = (k - 1) / 2;
+    const t = randInt(rng, h, n - 1 - h);
+    const window = ys.slice(t - h, t + h + 1);
+    const m = mean(window);
+    return {
+      text: `時系列データ $${ys.join(',\\ ')}$。${k} 項移動平均（中心化）の t=${t + 1} 期の値を求めよ。`,
+      choices: numChoices(
+        rng,
+        m,
+        [
+          {
+            value: mean(ys.slice(t - k + 1, t + 1)),
+            why: '後方移動平均（直近k期）を計算した — 中心化は t を窓の中心にする',
+          },
+          {
+            value: mean(ys.slice(t - h + 1, t + h + 2)),
+            why: '窓を1期ずらした（t が中心になる）',
+          },
+          { value: mean(ys), why: '全期間の平均を取った' },
+        ],
+        2,
+      ),
+      steps: [
+        `中心化移動平均: t=${t + 1} 期を中心に前後 ${h} 期ずつの窓`,
+        `窓 = 期${t + 1 - h}〜${t + 1 + h} = ${window.join(', ')}`,
+        `MA = (${window.join(' + ')}) ÷ ${k} = ${fmt(m, 2)}`,
+        `電卓: ${window.join('+')} = ÷${k} =`,
+        `後方移動平均（直近k期の平均）とは窓の位置が違う点に注意 — 問題文に「直近」とあれば後方。`,
+      ],
+      verify: { kind: 'ma', params: { xs: window.join(' ') }, expected: m },
+    };
+  }
+
+  if (mode === 'even') {
+    // 偶数項（4項）の中心化移動平均: 隣接する4項MAの平均
+    const t = randInt(rng, 2, n - 3);
+    const w1 = ys.slice(t - 2, t + 2); // 期 t-1〜t+2 の4項
+    const w2 = ys.slice(t - 1, t + 3); // 期 t〜t+3 の4項
+    const m1 = mean(w1);
+    const m2 = mean(w2);
+    const m = (m1 + m2) / 2;
+    return {
+      text: `時系列データ $${ys.join(',\\ ')}$。4 項移動平均（中心化）の t=${t + 1} 期と t=${t + 2} 期の間の値を求めよ。`,
+      choices: numChoices(
+        rng,
+        m,
+        [
+          { value: m1, why: '4項移動平均1つだけを答えた（中心化は2段階）' },
+          {
+            value: mean(ys.slice(t - 3, t + 1)),
+            why: '後方移動平均を計算した（中心化ではない）',
+          },
+          { value: mean(ys.slice(t - 1, t + 3)), why: '窓を1つだけ読んだ' },
+        ],
+        2,
+      ),
+      steps: [
+        `偶数項は窓の中心が期の間に来る → 2段階の中心化`,
+        `MA₁ = (${w1.join(' + ')}) ÷ 4 = ${fmt(m1, 2)}`,
+        `MA₂ = (${w2.join(' + ')}) ÷ 4 = ${fmt(m2, 2)}`,
+        `中心化MA = (MA₁ + MA₂) ÷ 2 = ${fmt(m, 2)}`,
+        `奇数項なら1段階で中心に来る。偶数項は必ず2段階。`,
+      ],
+      verify: {
+        kind: 'ma_c4',
+        params: { xs: [...w1, ...w2].join(' ') },
+        expected: m,
+      },
+    };
+  }
+
+  // 後方移動平均（問題文に明記）
+  const k = pick(rng, [3, 4, 5]);
   const t = randInt(rng, k - 1, n - 1);
   const window = ys.slice(t - k + 1, t + 1);
   const m = mean(window);
+  const h = Math.floor(k / 2);
+  const cw = ys.slice(Math.max(0, t - h), Math.min(n, t + h + 1));
   return {
-    text: `時系列データ $${ys.join(',\\ ')}$。${k} 項移動平均の t=${t + 1} 期の値を求めよ。`,
+    text: `時系列データ $${ys.join(',\\ ')}$。直近 ${k} 期の平均（後方移動平均）として t=${t + 1} 期の値を求めよ。`,
     choices: numChoices(
       rng,
       m,
       [
         {
-          value: mean(ys.slice(t - k + 2, t + 2 > n ? n : t + 2)),
-          why: '窓の位置を1つずらした',
+          value: cw.length === k ? mean(cw) : m * 1.1,
+          why: '中心化移動平均を計算した（「直近」なら後方）',
         },
         { value: mean(ys), why: '全期間の平均を取った' },
         { value: window[k - 1], why: '最新値そのものを答えた' },
@@ -376,9 +501,11 @@ export function ma_calc(rng: RNG): SolvedQuestion {
       2,
     ),
     steps: [
-      `窓: t=${t + 1} 期を含む直近 ${k} 期 = ${window.join(', ')}`,
+      `「直近k期」= 後方移動平均: t=${t + 1} 期を窓の右端にする`,
+      `窓 = 期${t - k + 2}〜${t + 1} = ${window.join(', ')}`,
       `MA = (${window.join(' + ')}) ÷ ${k} = ${fmt(m, 2)}`,
       `電卓: ${window.join('+')} = ÷${k} =`,
+      `「t期の移動平均」とだけ書かれていたら中心化（tを窓の中心）が標準。`,
     ],
     verify: { kind: 'ma', params: { xs: window.join(' ') }, expected: m },
   };

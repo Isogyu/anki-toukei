@@ -69,9 +69,18 @@ import {
   corr_test,
   anova_oneway,
   anova_table,
+  reg_anova,
   ma_calc,
 } from './regression';
 import { concept } from './concept';
+import {
+  chart_hist,
+  chart_box,
+  chart_scatter,
+  chart_ts,
+  chart_reg_out,
+  chart_cumfreq,
+} from './charts';
 
 export const SOLVERS: Record<string, SolverFn> = {
   mean_calc,
@@ -133,8 +142,15 @@ export const SOLVERS: Record<string, SolverFn> = {
   corr_test,
   anova_oneway,
   anova_table,
+  reg_anova,
   ma_calc,
   concept,
+  chart_hist,
+  chart_box,
+  chart_scatter,
+  chart_ts,
+  chart_reg_out,
+  chart_cumfreq,
 };
 
 export type { SolvedQuestion, Choice, ConceptItem } from './types';

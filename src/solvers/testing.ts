@@ -297,7 +297,7 @@ export function test_welch(rng: RNG): SolvedQuestion {
   const df =
     ((v1 + v2) * (v1 + v2)) / ((v1 * v1) / (n1 - 1) + (v2 * v2) / (n2 - 1));
   return {
-    text: `対応のなく等分散ともいえない2標本: 群1 n=${n1}, u₁=${u1}；群2 n=${n2}, u₂=${u2}；平均の差 |x̄−ȳ|=${diff}。Welchの検定で t 統計量を求めよ。`,
+    text: `対応がなく等分散ともいえない2標本: 群1 n=${n1}, u₁=${u1}；群2 n=${n2}, u₂=${u2}；平均の差 |x̄−ȳ|=${diff}。Welchの検定で t 統計量を求めよ。`,
     choices: numChoices(
       rng,
       t,
