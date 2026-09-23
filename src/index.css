@@ -1,0 +1,31 @@
+:root {
+  --color-bg: #ffffff;
+  --color-text: #111111;
+  --color-accent: #2563eb;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    'Hiragino Sans',
+    sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+}
