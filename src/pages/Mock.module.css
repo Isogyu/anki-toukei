@@ -1,0 +1,225 @@
+.wrap {
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intro {
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.note {
+  font-size: 13px;
+  color: #666666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.startBtn {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 52px;
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.progressText {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-accent);
+}
+
+.timer {
+  font-size: 18px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.urgent {
+  color: #b91c1c;
+}
+
+.giveUp {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #999999;
+  background: var(--color-bg);
+  color: #333333;
+  cursor: pointer;
+}
+
+.qcard {
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qhead {
+  font-size: 12px;
+  color: var(--color-accent);
+  font-weight: bold;
+  margin: 0;
+}
+
+.qtext {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice {
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border: 2px solid #cccccc;
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.choice.selected {
+  border-color: var(--color-accent);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+}
+
+.navBtn {
+  flex: 1;
+  font-size: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.navBtn:disabled {
+  background: #9ca3af;
+}
+
+.finishBtn {
+  background: #15803d;
+}
+
+.answered {
+  font-size: 12px;
+  color: #666666;
+  text-align: center;
+  margin: 0;
+}
+
+.resultCard {
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.score {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-accent);
+  margin: 0 0 4px;
+}
+
+.reviewCard {
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reviewHead {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reviewMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.markOk {
+  color: #15803d;
+}
+
+.markNg {
+  color: #b91c1c;
+}
+
+.reviewText {
+  font-size: 13px;
+  color: #333333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.reviewAns {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.reviewSteps {
+  border-top: 1px dashed #dddddd;
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step {
+  margin: 0;
+  font-size: 12px;
+  color: #555555;
+  line-height: 1.5;
+}

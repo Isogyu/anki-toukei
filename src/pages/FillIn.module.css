@@ -1,0 +1,162 @@
+.wrap {
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modeBar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.modeBtn {
+  flex: 1;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid var(--color-accent);
+  background: var(--color-bg);
+  color: var(--color-accent);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.modeBtn.active {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.tableCard {
+  border: 2px solid var(--color-accent);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--color-bg);
+  overflow-x: auto;
+}
+
+.caption {
+  font-size: 13px;
+  color: var(--color-accent);
+  font-weight: bold;
+  margin: 0 0 8px;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tbl th,
+.tbl td {
+  border: 1px solid #cccccc;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.tbl th {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.target {
+  background: #fef9c3;
+  font-weight: bold;
+  color: #a16207;
+}
+
+.cellOk {
+  background: #f0fdf4;
+  color: #15803d;
+  font-weight: bold;
+}
+
+.cellNg {
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: bold;
+}
+
+.qbox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qlabel {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.choice {
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 2px solid #cccccc;
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.choice.correct {
+  border-color: #15803d;
+  background: #f0fdf4;
+}
+
+.choice.wrong {
+  border-color: #b91c1c;
+  background: #fef2f2;
+}
+
+.choice.dim {
+  opacity: 0.55;
+}
+
+.why {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+  background: #fffbeb;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.summary {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--color-accent);
+  margin: 0;
+  text-align: center;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step {
+  margin: 0;
+  font-size: 13px;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.next {
+  font-size: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 48px;
+}
