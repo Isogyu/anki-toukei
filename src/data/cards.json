@@ -233,7 +233,8 @@
     "meaning": "二項分布の期待値。",
     "usage": ["期待値計算"],
     "ohm": "4-3",
-    "official": "2.7"
+    "official": "2.7",
+    "pitfalls": ["分散 np(1−p) と混同しない", "p は「数えるもの」が起こる確率"]
   },
   {
     "id": 21,
@@ -244,7 +245,11 @@
     "usage": ["分散計算"],
     "calcTips": "np(1−p)。標準偏差を聞かれたら√を取る",
     "ohm": "4-3",
-    "official": "2.7"
+    "official": "2.7",
+    "pitfalls": [
+      "標準偏差は √(np(1−p))。分散と標準偏差の混同に注意",
+      "ポアソン（分散=平均）と違い、分散は平均より小さい"
+    ]
   },
   {
     "id": 22,
@@ -268,7 +273,8 @@
     "meaning": "ポアソン分布の期待値。",
     "usage": ["期待値計算"],
     "ohm": "4-3",
-    "official": "2.7"
+    "official": "2.7",
+    "pitfalls": ["分散も λ（平均=分散）"]
   },
   {
     "id": 24,
@@ -501,7 +507,11 @@
       "正規より裾が厚い→小標本で臨界値が大きい"
     ],
     "ohm": "4-5",
-    "official": "2.10"
+    "official": "2.10",
+    "symbol": "T\\sim t(k)",
+    "examples": ["母分散未知の母平均の検定", "母分散未知の母平均の信頼区間"],
+    "related": ["標準正規分布（k→∞）", "χ²分布（分母に入る）"],
+    "focus": "understand"
   },
   {
     "id": 45,
@@ -510,9 +520,20 @@
     "formula": "\\chi^2 = \\sum_{i=1}^{k} Z_i^2 \\sim \\chi^2(k)",
     "meaning": "標準正規変数の二乗和が従う分布。",
     "usage": ["分散の検定", "適合度検定"],
-    "pitfalls": ["自由度は二乗和の個数k。(n−1)u²/σ²〜χ²(n−1)も頻出"],
+    "pitfalls": [
+      "自由度は二乗和の個数k。(n−1)u²/σ²〜χ²(n−1)も頻出",
+      "0以上の値のみ・右に裾を引く（両側では上下2つの臨界値）"
+    ],
     "ohm": "4-5",
-    "official": "2.10"
+    "official": "2.10",
+    "symbol": "\\chi^2(k)",
+    "examples": [
+      "母分散が規格値 σ₀² と異なるかの検定",
+      "母分散の信頼区間",
+      "分割表の独立性の検定"
+    ],
+    "related": ["F分布（χ²/自由度の比）", "標本分散の分布"],
+    "focus": "understand"
   },
   {
     "id": 46,
@@ -523,7 +544,14 @@
     "usage": ["分散比の検定", "分散分析"],
     "pitfalls": ["自由度の順序は(分子,分母)。F(0.05;2,12)とF(0.05;12,2)は別値"],
     "ohm": "4-5",
-    "official": "2.10"
+    "official": "2.10",
+    "symbol": "F(k_1,k_2)",
+    "examples": [
+      "2つの工場の製品のばらつきが等しいかの検定",
+      "一元配置分散分析"
+    ],
+    "related": ["χ²分布", "t²=F(1,k)"],
+    "focus": "understand"
   },
   {
     "id": 47,
@@ -1371,7 +1399,8 @@
     ],
     "calcTips": "zを小数2桁に丸めて表を引く。z=1.96→0.025は暗記",
     "ohm": "4-4",
-    "official": "2.8"
+    "official": "2.8",
+    "examples": ["N(50, 10²) で X>65 の確率", "N(100, 15²) で 85<X<115 の確率"]
   },
   {
     "id": 120,
@@ -1385,7 +1414,13 @@
       "目安はnpとn(1−p)がともに5程度以上"
     ],
     "ohm": "4-4",
-    "official": "2.11"
+    "official": "2.11",
+    "symbol": "B(n,p)\\approx N(np,\\ np(1-p))",
+    "examples": [
+      "コインを100回投げて60回以上表が出る確率",
+      "不良率0.1で400個中50個以下の確率"
+    ],
+    "related": ["連続補正", "中心極限定理"]
   },
   {
     "id": 121,
@@ -1420,7 +1455,10 @@
     "usage": ["確率計算", "推定・検定"],
     "pitfalls": ["平均は変わらずμ、分散はσ²/n。標準化は(x̄−μ)/(σ/√n)"],
     "ohm": "4-5",
-    "official": "2.10"
+    "official": "2.10",
+    "symbol": "\\bar X\\sim N(\\mu,\\sigma^2/n)",
+    "examples": ["平均50・sd10の母集団から25個取った平均が53を超える確率"],
+    "related": ["中心極限定理（母集団が正規でなくても近似）", "t分布（σ未知）"]
   },
   {
     "id": 124,
@@ -1883,5 +1921,412 @@
     ],
     "ohm": "7-2",
     "official": "3.2"
+  },
+  {
+    "id": 158,
+    "category": "確率分布",
+    "title": "二項分布(まとめ)",
+    "formula": "\\begin{gathered}E(X)=np\\\\V(X)=np(1-p)\\\\\\sigma=\\sqrt{np(1-p)}\\end{gathered}",
+    "meaning": "回数 n が決まった独立試行の「成功回数」の分布。平均 np、分散 np(1−p)。",
+    "usage": ["不良品数・当たり数", "正規近似の出発点"],
+    "pitfalls": [
+      "分散 np(1−p) と標準偏差 √(np(1−p)) の混同",
+      "「数えるもの」の確率が p（良品/不良品を取り違えない）",
+      "分散は平均より小さい（ポアソンとの違い）"
+    ],
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "X\\sim B(n,p)",
+    "represents": "独立な n 回の試行で、確率 p の事象が起こる回数",
+    "examples": [
+      "不良率5%の製品を100個検査したときの不良品数",
+      "コインを10回投げて表が出る回数",
+      "正解率0.3で20問に答えたときの正解数"
+    ],
+    "related": [
+      "ポアソン分布（n大・p小で近似）",
+      "正規分布（n大で近似）",
+      "超幾何分布（非復元）"
+    ],
+    "focus": "memorize"
+  },
+  {
+    "id": 159,
+    "category": "確率分布",
+    "title": "二項分布(標準偏差)",
+    "formula": "\\sigma=\\sqrt{np(1-p)}",
+    "meaning": "二項分布の標準偏差。正規近似で標準化するときの分母。",
+    "usage": ["正規近似の標準化", "ばらつきの比較"],
+    "pitfalls": ["分散 np(1−p) のまま割らない", "√(np) で (1−p) を忘れない"],
+    "calcTips": "np(1−p) を先に計算して最後に √。100×0.2×0.8=16→4 のような「きれいな数」が多い",
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "X\\sim B(n,p)",
+    "examples": ["B(100, 0.2) の標準偏差は √16 = 4"],
+    "focus": "memorize"
+  },
+  {
+    "id": 160,
+    "category": "確率分布",
+    "title": "ポアソン分布(まとめ)",
+    "formula": "\\begin{gathered}E(X)=\\lambda,\\quad V(X)=\\lambda\\\\\\sigma=\\sqrt{\\lambda}\\end{gathered}",
+    "meaning": "平均 λ で稀に起こる事象の回数。平均と分散がどちらも λ。",
+    "usage": ["時間・空間あたりの件数", "二項分布の近似"],
+    "pitfalls": [
+      "分散も λ（λ² や √λ ではない）",
+      "試行回数 n が決まっていれば二項分布を疑う",
+      "区間の長さが変われば λ も比例して変わる"
+    ],
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "X\\sim Po(\\lambda)",
+    "represents": "一定時間・一定空間の中で、ランダムに起こる事象の発生回数",
+    "examples": [
+      "1時間あたりの問い合わせ件数",
+      "1ページあたりの誤植の数",
+      "1か月の交通事故件数"
+    ],
+    "related": [
+      "二項分布（n大・p小の極限）",
+      "指数分布（発生間隔の待ち時間）",
+      "正規分布（λ大で近似）"
+    ],
+    "focus": "memorize"
+  },
+  {
+    "id": 161,
+    "category": "確率分布",
+    "title": "二項分布のポアソン近似",
+    "formula": "\\begin{gathered}B(n,p)\\approx Po(\\lambda)\\\\\\lambda=np\\quad(n\\text{ 大},\\ p\\text{ 小})\\end{gathered}",
+    "meaning": "p が小さいと平均 np と分散 np(1−p) がほぼ等しくなり、平均=分散のポアソン分布に近づく。",
+    "usage": ["稀な事象の確率計算"],
+    "pitfalls": [
+      "np が小さいとき正規近似は不適（分布が偏る）",
+      "λ=np（n や p 単体ではない）"
+    ],
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "B(n,p)\\approx Po(np)",
+    "represents": "n が大きく p が小さい二項分布をポアソン分布で近似する",
+    "examples": [
+      "不良率0.1%の部品を2000個検査して不良が0個の確率",
+      "副作用率0.2%の薬を1000人が服用して1人以下の確率"
+    ],
+    "related": ["二項分布の正規近似（np が大きいとき）"],
+    "focus": "understand"
+  },
+  {
+    "id": 162,
+    "category": "確率分布",
+    "title": "ポアソン分布のλと区間の長さ",
+    "formula": "\\begin{gathered}\\text{1時間平均 }r\\text{ 件}\\\\\\Rightarrow t\\text{ 時間の件数}\\sim Po(rt)\\end{gathered}",
+    "meaning": "ポアソン分布の λ は「その区間での平均回数」。区間が2倍なら λ も2倍。",
+    "usage": ["時間単位の換算"],
+    "pitfalls": [
+      "問題文の単位（1時間・1日）と聞かれている区間が違うことが多い",
+      "平均間隔 1/λ（指数分布）と混同しない"
+    ],
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "\\lambda = (\\text{単位あたりの平均})\\times(\\text{区間の長さ})",
+    "examples": ["1時間平均4件のとき、30分間の件数は Po(2)"],
+    "focus": "understand"
+  },
+  {
+    "id": 163,
+    "category": "確率分布",
+    "title": "正規分布(まとめ)",
+    "formula": "E(X)=\\mu,\\quad V(X)=\\sigma^2,\\quad SD=\\sigma",
+    "meaning": "第1引数が平均、第2引数が分散。標準化すれば N(0,1) の表で確率が読める。",
+    "usage": ["連続量のモデル", "標本平均・二項分布の近似"],
+    "pitfalls": [
+      "N(50, 25) の 25 は分散。標準偏差は 5",
+      "確率は面積。f(x) の値は確率ではない"
+    ],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "X\\sim N(\\mu,\\sigma^2)",
+    "represents": "平均 μ を中心に左右対称な釣鐘型の連続分布（身長・重さ・測定誤差など）",
+    "examples": [
+      "成人男性の身長が N(170, 6²) に従うとき 182cm を超える割合",
+      "製品の重さが規格から外れる確率"
+    ],
+    "related": ["標準正規分布 N(0,1)", "中心極限定理", "二項分布の正規近似"],
+    "focus": "memorize"
+  },
+  {
+    "id": 164,
+    "category": "確率分布",
+    "title": "標準正規分布と標準化",
+    "formula": "Z=\\dfrac{X-\\mu}{\\sigma}\\sim N(0,1)",
+    "meaning": "平均を引いて標準偏差で割ると、平均0・分散1になる。数値表はこの分布のもの。",
+    "usage": ["正規分布の確率計算", "検定統計量"],
+    "pitfalls": [
+      "σ² で割らない（N(μ,σ²) の第2引数に注意）",
+      "引く順序は X−μ（逆にすると符号が反転）"
+    ],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "Z\\sim N(0,1)",
+    "represents": "平均0・標準偏差1の正規分布。どんな正規分布も標準化でこれに直せる",
+    "examples": [
+      "X～N(60, 10²) で X=70 → Z=(70−60)/10=1",
+      "X～N(50, 4²) で P(X<44)=P(Z<−1.5)"
+    ],
+    "related": ["正規分布の対称性", "標本平均の標準化（σ/√n で割る）"],
+    "focus": "memorize"
+  },
+  {
+    "id": 165,
+    "category": "確率分布",
+    "title": "標準化の逆変換(ZからX)",
+    "formula": "X=\\mu+z\\,\\sigma",
+    "meaning": "「上位5%に入る得点」など、確率から X の値を求めるときは z を読んでから戻す。",
+    "usage": ["上位○%の値", "信頼区間の端点"],
+    "pitfalls": ["σ² を掛けない", "下側なら z は負（μ−zσ）"],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "X=\\mu+Z\\sigma",
+    "examples": ["N(60, 10²) の上位5%の境界は 60+1.645×10=76.45"],
+    "focus": "memorize"
+  },
+  {
+    "id": 166,
+    "category": "確率分布",
+    "title": "正規分布の対称性",
+    "formula": "\\begin{gathered}P(Z<-a)=P(Z>a)\\\\P(|Z|>a)=2P(Z>a)\\\\P(|Z|<a)=1-2P(Z>a)\\end{gathered}",
+    "meaning": "標準正規分布は0を中心に左右対称。表は片側だけでよく、負の z や両側は対称性で求める。",
+    "usage": ["負の z の確率", "両側確率・区間の確率"],
+    "pitfalls": [
+      "両側は2倍、内側は1から2倍を引く",
+      "「0.5 より大きいか小さいか」を図で先に確認"
+    ],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "P(Z<-a)=P(Z>a)",
+    "examples": ["P(Z<−1.5)=P(Z>1.5)=0.0668", "P(|Z|>1.96)=2×0.025=0.05"],
+    "focus": "understand"
+  },
+  {
+    "id": 167,
+    "category": "確率分布",
+    "title": "68-95-99.7則",
+    "formula": "\\begin{gathered}P(|X-\\mu|<\\sigma)\\approx0.68\\\\P(|X-\\mu|<2\\sigma)\\approx0.95\\\\P(|X-\\mu|<3\\sigma)\\approx0.997\\end{gathered}",
+    "meaning": "正規分布では平均±1σ・±2σ・±3σ に約68%・95%・99.7%が入る。",
+    "usage": ["概算", "選択肢の絞り込み"],
+    "pitfalls": [
+      "正確には ±1.96σ で95%",
+      "片側なら半分（±1σ の外側の上側は約16%）"
+    ],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "\\mu\\pm k\\sigma",
+    "examples": ["身長 N(170, 6²) なら 158〜182cm に約95%"],
+    "focus": "memorize"
+  },
+  {
+    "id": 168,
+    "category": "確率分布",
+    "title": "連続補正",
+    "formula": "\\begin{gathered}P(X\\ge k)\\to k-0.5,\\quad P(X\\le k)\\to k+0.5\\\\P(X>k)\\to k+0.5,\\quad P(X<k)\\to k-0.5\\end{gathered}",
+    "meaning": "整数値 k を幅1の区間 [k−0.5, k+0.5] とみなして、連続の正規分布の面積に置き換える。",
+    "usage": ["二項分布の正規近似"],
+    "pitfalls": [
+      "「k を含むか」で ±0.5 の向きが決まる",
+      "P(X=k) は P(k−0.5<Y<k+0.5)"
+    ],
+    "ohm": "4-4",
+    "official": "2.11",
+    "symbol": "P(X\\ge k)\\approx P(Y\\ge k-0.5)",
+    "examples": ["B(100, 0.5) で P(X≥60) → P(Y≥59.5)、z=(59.5−50)/5=1.9"],
+    "focus": "memorize"
+  },
+  {
+    "id": 169,
+    "category": "確率分布",
+    "title": "なぜ標準化するのか",
+    "formula": "",
+    "meaning": "平均も分散も違う正規分布を「平均0・標準偏差1」の共通のものさしにそろえ、1枚の数値表で確率を読めるようにするため。",
+    "usage": ["確率計算", "異なる分布の比較"],
+    "pitfalls": [
+      "標準化しても分布の形は変わらない（正規でないものは正規にならない）"
+    ],
+    "ohm": "4-4",
+    "official": "2.8",
+    "symbol": "Z=\\dfrac{X-\\mu}{\\sigma}",
+    "examples": [
+      "数学（平均60・sd10）の75点と英語（平均50・sd20）の80点、どちらが相対的に良い？ → z=1.5 と z=1.5 で同等"
+    ],
+    "related": ["偏差値=50+10z", "検定統計量（すべて「標準化」の形）"],
+    "focus": "understand"
+  },
+  {
+    "id": 170,
+    "category": "確率分布",
+    "title": "なぜ二項分布を正規近似できるのか",
+    "formula": "\\begin{gathered}X=B_1+\\cdots+B_n\\quad(B_i\\in\\{0,1\\})\\\\\\Rightarrow X\\approx N\\bigl(np,\\ np(1-p)\\bigr)\\end{gathered}",
+    "meaning": "二項分布は独立な 0/1（ベルヌーイ）の和。和は n が大きいと中心極限定理で正規分布に近づく。",
+    "usage": ["正規近似の根拠"],
+    "pitfalls": [
+      "目安は np と n(1−p) がともに5程度以上",
+      "p が小さく np が小さいならポアソン近似"
+    ],
+    "ohm": "4-4",
+    "official": "2.11",
+    "symbol": "X=\\textstyle\\sum_{i=1}^n B_i",
+    "examples": ["400回のコイン投げで表が220回以上の確率を正規表で近似"],
+    "related": ["中心極限定理", "標本比率 p̂=X/n の正規近似"],
+    "focus": "understand"
+  },
+  {
+    "id": 171,
+    "category": "確率分布",
+    "title": "分布の選び方(早見表)",
+    "formula": "",
+    "meaning": "n回中の回数→二項／時間・空間あたりの回数→ポアソン／連続量→正規／σ未知の平均→t／分散→χ²／分散の比→F。",
+    "usage": ["分布判別", "解法の入口"],
+    "pitfalls": [
+      "「戻さず」→超幾何、「初めて〜まで」→幾何、「待ち時間」→指数",
+      "近似（正規・ポアソン）と厳密な分布を区別する"
+    ],
+    "ohm": "4-3",
+    "official": "2.7",
+    "symbol": "\\text{問題文}\\to\\text{分布}",
+    "examples": [
+      "「100個検査して不良品数」→二項",
+      "「1時間の問い合わせ件数」→ポアソン",
+      "「母分散未知の母平均の検定」→t",
+      "「2つの母分散の比較」→F"
+    ],
+    "related": ["判別ドリル（確率分布・標本分布）"],
+    "focus": "understand"
+  },
+  {
+    "id": 172,
+    "category": "標本分布",
+    "title": "標本平均(まとめ)",
+    "formula": "\\begin{gathered}E(\\bar X)=\\mu,\\quad V(\\bar X)=\\dfrac{\\sigma^2}{n}\\\\SD(\\bar X)=\\dfrac{\\sigma}{\\sqrt n}\\\\Z=\\dfrac{\\bar X-\\mu}{\\sigma/\\sqrt n}\\end{gathered}",
+    "meaning": "平均は母平均のまま、分散は 1/n、標準偏差は 1/√n に縮む。",
+    "usage": ["標本平均の確率", "区間推定・検定の基礎"],
+    "pitfalls": [
+      "分散は n で、標準偏差は √n で割る",
+      "σ（母集団）と σ/√n（標本平均）の混同"
+    ],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "\\bar{X}=\\tfrac{1}{n}\\textstyle\\sum X_i",
+    "represents": "母集団（平均 μ・分散 σ²）から取った n 個の平均",
+    "examples": [
+      "N(50, 10²) から n=25 → X̄～N(50, 4)、SD=2",
+      "X̄ が 53 を超える確率 → z=(53−50)/2=1.5"
+    ],
+    "related": ["中心極限定理", "t分布（σ未知のとき）"],
+    "focus": "memorize"
+  },
+  {
+    "id": 173,
+    "category": "標本分布",
+    "title": "なぜV(X̄)=σ²/nなのか",
+    "formula": "\\begin{gathered}V(\\bar X)=V\\!\\left(\\tfrac{1}{n}\\textstyle\\sum X_i\\right)\\\\=\\dfrac{1}{n^2}\\cdot n\\sigma^2=\\dfrac{\\sigma^2}{n}\\end{gathered}",
+    "meaning": "独立な n 個の和の分散は nσ²。平均にするため 1/n 倍すると分散は 1/n² 倍になる。",
+    "usage": ["公式の導出"],
+    "pitfalls": [
+      "「分散の平均」ではない（それは σ² のまま）",
+      "独立でないと成り立たない"
+    ],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "V(\\bar X)=\\dfrac{\\sigma^2}{n}",
+    "related": ["分散の加法性（独立）", "V(aX)=a²V(X)"],
+    "focus": "understand"
+  },
+  {
+    "id": 174,
+    "category": "標本分布",
+    "title": "nが大きいと標本平均は安定する",
+    "formula": "\\begin{gathered}SD(\\bar X)=\\dfrac{\\sigma}{\\sqrt n}\\\\n\\text{ を4倍}\\Rightarrow SD\\text{ は }1/2\\end{gathered}",
+    "meaning": "標本を取り直すたびの x̄ のばらつきが小さくなり、μ の近くに集まる。母集団のばらつき σ は変わらない。",
+    "usage": ["標本サイズの設計", "大数の法則の理解"],
+    "pitfalls": ["σ そのものは n によらない", "精度2倍には n は2倍でなく4倍"],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "\\sigma/\\sqrt n\\to0",
+    "examples": ["標準誤差を半分にするには n を4倍", "n=100 なら σ/10"],
+    "related": ["大数の法則", "必要な標本サイズ"],
+    "focus": "understand"
+  },
+  {
+    "id": 175,
+    "category": "標本分布",
+    "title": "母集団の分布と標本平均の分布",
+    "formula": "\\begin{gathered}X\\sim N(\\mu,\\sigma^2)\\\\\\bar X\\sim N\\!\\left(\\mu,\\ \\dfrac{\\sigma^2}{n}\\right)\\end{gathered}",
+    "meaning": "「1個の値 X」の確率は σ で標準化、「n 個の平均 x̄」の確率は σ/√n で標準化する。",
+    "usage": ["標準化の分母の判断"],
+    "pitfalls": ["問題文が「1個」か「平均」かを必ず確認"],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "X\\ \\text{vs}\\ \\bar X",
+    "examples": [
+      "「1人の身長が175超」→ σ で割る",
+      "「25人の平均身長が175超」→ σ/5 で割る"
+    ],
+    "focus": "understand"
+  },
+  {
+    "id": 176,
+    "category": "標本分布",
+    "title": "t分布と標準正規分布の違い",
+    "formula": "\\begin{gathered}T=\\dfrac{\\bar X-\\mu}{U/\\sqrt n}\\sim t(n-1)\\\\Z=\\dfrac{\\bar X-\\mu}{\\sigma/\\sqrt n}\\sim N(0,1)\\end{gathered}",
+    "meaning": "σ を標本の U で代用すると U のばらつきが加わり裾が重くなる。自由度が大きいほど N(0,1) に近づく。",
+    "usage": ["z と t の使い分け"],
+    "pitfalls": [
+      "σ 既知なら z、σ 未知（不偏分散）なら t",
+      "t の臨界値は z より大きい"
+    ],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "t(k)\\ \\text{vs}\\ N(0,1)",
+    "examples": ["n=10 の両側5%: z=1.96、t(9)=2.262"],
+    "related": ["t分布", "自由度"],
+    "focus": "understand"
+  },
+  {
+    "id": 177,
+    "category": "標本分布",
+    "title": "t・χ²・Fの使い分け",
+    "formula": "",
+    "meaning": "平均（σ未知）→ t、1つの分散 → χ²、2つの分散の比・分散分析 → F。",
+    "usage": ["分布判別", "検定・推定の入口"],
+    "pitfalls": [
+      "χ²・F は0以上で右に裾を引く（両側では上下2つの臨界値）",
+      "F の自由度は（分子, 分母）の順"
+    ],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "t,\\ \\chi^2,\\ F",
+    "examples": [
+      "母分散未知の母平均の検定 → t(n−1)",
+      "母分散の区間推定 → χ²(n−1)",
+      "2工場のばらつき比較 → F(n₁−1, n₂−1)"
+    ],
+    "related": ["標本分布の対応（Z, χ², t, F の作り方）"],
+    "focus": "understand"
+  },
+  {
+    "id": 178,
+    "category": "標本分布",
+    "title": "F分布とχ²分布の関係",
+    "formula": "\\begin{gathered}\\dfrac{U_1^2/\\sigma_1^2}{U_2^2/\\sigma_2^2}\\\\\\sim F(n_1-1,\\ n_2-1)\\end{gathered}",
+    "meaning": "各不偏分散は χ²/自由度 の形。その比が F 分布。等分散（σ₁²=σ₂²）の仮説のもとで F=U₁²/U₂²。",
+    "usage": ["等分散の検定", "分散分析"],
+    "pitfalls": [
+      "標準偏差の比ではなく分散の比",
+      "大きい方を分子にすると上側だけで判定できる"
+    ],
+    "ohm": "4-5",
+    "official": "2.10",
+    "symbol": "F=\\dfrac{\\chi^2_1/k_1}{\\chi^2_2/k_2}",
+    "related": ["χ²分布", "t² = F(1, k)"],
+    "focus": "understand"
   }
 ]

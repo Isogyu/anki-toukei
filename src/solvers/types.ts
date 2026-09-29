@@ -13,12 +13,25 @@ export interface VerifyPayload {
   expected: number;
 }
 
+/** ステップ式問題の途中ステップ（最終ステップは SolvedQuestion 本体）。 */
+export interface Stage {
+  prompt: string; // 「Step 1: X は何分布か？」など
+  choices: Choice[]; // 3〜5個、correct はちょうど1つ
+  explain: string[]; // このステップの解説
+  verify?: VerifyPayload; // 数値ステップなら scipy 検算
+}
+
 export interface SolvedQuestion {
-  text: string; // 問題文（$...$ で KaTeX インライン可）
+  text: string; // 問題文（$...$ で KaTeX インライン可）。stages があっても単体で成立する最終問題
   figure?: string; // 内部生成の SVG/HTML 図表（描画データ＝解答根拠）
   choices: Choice[]; // 4〜5個、correct はちょうど1つ
   steps: string[]; // 解答・普通電卓での手順
   verify?: VerifyPayload; // scipy 検算用の機械可読データ
+  /** ステップ式問題: 共通の問題設定。stages を順に解いてから finalPrompt に答える。
+   *  ステップ非対応の画面（ミニ模試など）は text + choices だけで出題できる。 */
+  stem?: string;
+  stages?: Stage[];
+  finalPrompt?: string;
 }
 
 export interface ConceptItem {

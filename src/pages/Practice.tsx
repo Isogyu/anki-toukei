@@ -75,10 +75,10 @@ export default function Practice({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusTplId]);
 
-  const onAnswer = (i: number) => {
+  const onAnswer = (i: number, correct: boolean) => {
     if (answered !== null) return;
     setAnswered(i);
-    record(tpl.id, q.choices[i].correct);
+    record(tpl.id, correct);
   };
 
   const onMissType = (t: MissType) => {

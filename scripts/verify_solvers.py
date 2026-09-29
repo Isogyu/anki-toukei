@@ -24,6 +24,18 @@ TOL = 1e-6
 RTOL = 1e-6
 # probs を4桁丸めして dump しているkindは丸め誤差を許容
 LOOSE_KINDS = {'ev_discrete', 'var_discrete'}
+# 配布数値表（tables.json, 4桁程度）から引いた臨界値は表の丸め誤差を許容
+TABLE_KINDS = {'t_crit', 'chi2_crit', 'f_crit'}
+
+
+def cc_boundary(k, op):
+    """二項の正規近似の連続補正: op 0:≥ 1:≤ 2:> 3:<  → (境界, 上側か)"""
+    return {
+        0: (k - 0.5, True),
+        1: (k + 0.5, False),
+        2: (k + 0.5, True),
+        3: (k - 0.5, False),
+    }[int(op)]
 
 
 def xs_of(p):
@@ -239,6 +251,51 @@ def compute(kind, p):
         return p['t'] * p['se']
     if kind == 'adj_r2':
         return 1 - (1 - p['r2']) * (p['n'] - 1) / (p['n'] - p['k'] - 1)
+    # ---- 確率分布の判断→平均・分散→標準化（src/solvers/distflow.ts） ----
+    if kind == 'binom_sd':
+        return float(stats.binom.std(p['n'], p['p']))
+    if kind == 'poisson_var':
+        return float(stats.poisson.var(p['lam']))
+    if kind == 'poisson_sd':
+        return float(stats.poisson.std(p['lam']))
+    if kind == 'poisson_cdf':
+        return float(stats.poisson.cdf(p['k'], p['lam']))
+    if kind == 'sqrt':
+        return math.sqrt(p['x'])
+    if kind == 'square':
+        return p['x'] ** 2
+    if kind == 'xbar_var':
+        return p['sd'] ** 2 / p['n']
+    if kind == 'xbar_se':
+        return p['sd'] / math.sqrt(p['n'])
+    if kind == 'std_z':
+        return (p['x'] - p['mu']) / p['sd']
+    if kind == 'std_z_abs':
+        return abs(p['x'] - p['mu']) / p['sd']
+    if kind == 'std_x':
+        return float(stats.norm(p['mu'], p['sd']).ppf(stats.norm.cdf(p['z'])))
+    if kind == 'normal_two':
+        up = float(stats.norm.sf(p['z']))
+        return 2 * up if p['outside'] else 1 - 2 * up
+    if kind == 'se_ratio':
+        return 1 / math.sqrt(p['k'])
+    if kind == 'xbar_z':
+        return (p['xbar'] - p['mu']) / (p['sd'] / math.sqrt(p['n']))
+    if kind in ('binom_norm_z', 'binom_norm_op'):
+        n, pp = p['n'], p['p']
+        mu = n * pp
+        sd = math.sqrt(n * pp * (1 - pp))
+        b, upper = cc_boundary(p['k'], p['op'])
+        z = (b - mu) / sd
+        if kind == 'binom_norm_z':
+            return z
+        return float(stats.norm.sf(z) if upper else stats.norm.cdf(z))
+    if kind == 't_crit':
+        return float(stats.t.isf(p['a'], int(p['df'])))
+    if kind == 'chi2_crit':
+        return float(stats.chi2.isf(p['a'], int(p['df'])))
+    if kind == 'f_crit':
+        return float(stats.f.isf(p['a'], int(p['df1']), int(p['df2'])))
     if kind in ('box_read', 'scatter_r', 'reg_read', 'quartile_read'):
         # 描画データをそのまま読む問題は solver の値を再計算せず一致確認のみ
         return float(v_expected(p))
@@ -288,7 +345,12 @@ def main():
             skipped[v['kind']] = skipped.get(v['kind'], 0) + 1
             continue
         got = float(v['expected'])
-        tol = 2e-3 if v['kind'] in LOOSE_KINDS else TOL + RTOL * abs(expected)
+        if v['kind'] in LOOSE_KINDS:
+            tol = 2e-3
+        elif v['kind'] in TABLE_KINDS:
+            tol = 5e-4
+        else:
+            tol = TOL + RTOL * abs(expected)
         if abs(got - expected) <= tol:
             ok += 1
         else:

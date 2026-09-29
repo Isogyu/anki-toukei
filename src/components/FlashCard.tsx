@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import katex from 'katex';
 import type { Card } from '../types/Card';
+import { FOCUS_LABELS } from '../types/Card';
+import { Tex } from './Tex';
 import type { Rating } from '../hooks/useRatings';
 import { ReportButton } from './ReportButton';
 import styles from './FlashCard.module.css';
@@ -43,6 +45,24 @@ function FlashCard({
       displayMode: true,
     });
   }, [card.formula]);
+
+  const symbolHtml = useMemo(() => {
+    if (!card.symbol) return '';
+    return katex.renderToString(card.symbol, {
+      throwOnError: false,
+      displayMode: false,
+    });
+  }, [card.symbol]);
+
+  const focusBadge = card.focus && (
+    <span
+      className={`${styles.focusBadge} ${
+        card.focus === 'understand' ? styles.focusUnderstand : ''
+      }`}
+    >
+      {card.focus === 'understand' ? '💡' : '🧠'} {FOCUS_LABELS[card.focus]}
+    </span>
+  );
 
   const checkButton = (
     <button
@@ -98,6 +118,16 @@ function FlashCard({
             {checkButton}
           </div>
           <h2 className={styles.title}>{card.title}</h2>
+          {symbolHtml && (
+            <div
+              className={styles.symbol}
+              dangerouslySetInnerHTML={{ __html: symbolHtml }}
+            />
+          )}
+          {card.represents && (
+            <p className={styles.represents}>{card.represents}</p>
+          )}
+          {focusBadge}
           {rating && (
             <span
               className={`${styles.ratingBadge} ${
@@ -147,6 +177,18 @@ function FlashCard({
                 </ul>
               </div>
             )}
+            {card.examples && card.examples.length > 0 && (
+              <div className={styles.section}>
+                <span className={styles.label}>📝 典型的な問題文</span>
+                <ul className={styles.examples}>
+                  {card.examples.map((x) => (
+                    <li key={x}>
+                      <Tex text={x} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {card.calcTips && (
               <div className={styles.section}>
                 <span className={styles.label}>🔢 電卓のコツ</span>
@@ -161,6 +203,18 @@ function FlashCard({
                 ))}
               </ul>
             </div>
+            {card.related && card.related.length > 0 && (
+              <div className={styles.section}>
+                <span className={styles.label}>🔗 関連</span>
+                <ul className={styles.related}>
+                  {card.related.map((r) => (
+                    <li key={r}>
+                      <Tex text={r} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {refLine && <p className={styles.refs}>{refLine}</p>}
             {onRate && (
               <div

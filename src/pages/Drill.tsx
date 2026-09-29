@@ -56,11 +56,19 @@ function makeItem(rng: () => number, pool: Pattern[]): DrillItem {
 }
 
 interface Props {
+  /** 弱点ページから指定されたパターンID。あればそれを出題する。 */
+  focusPatId?: string | null;
+  onConsumeFocus?: () => void;
   isReported: (key: string) => boolean;
   onToggleReport: (key: string) => void;
 }
 
-export default function Drill({ isReported, onToggleReport }: Props) {
+export default function Drill({
+  focusPatId = null,
+  onConsumeFocus,
+  isReported,
+  onToggleReport,
+}: Props) {
   const [filter, setFilter] = useState<Filter>(ALL);
   const rng = useRef(Math.random);
   const [item, setItem] = useState<DrillItem>(() =>
@@ -77,9 +85,12 @@ export default function Drill({ isReported, onToggleReport }: Props) {
   const { stats, record } = useDrillStats();
 
   const next = useCallback(
-    (f: Filter = filter) => {
-      const pl =
-        f === ALL ? patterns : patterns.filter((p) => p.category === f);
+    (f: Filter = filter, forced?: Pattern) => {
+      const pl = forced
+        ? [forced]
+        : f === ALL
+          ? patterns
+          : patterns.filter((p) => p.category === f);
       setItem(makeItem(rng.current, pl));
       setSel({});
       setAnswered(false);
@@ -87,6 +98,18 @@ export default function Drill({ isReported, onToggleReport }: Props) {
     },
     [filter],
   );
+
+  // 弱点ページからの「ドリルで練習」
+  useEffect(() => {
+    if (!focusPatId) return;
+    const p = patterns.find((x) => x.id === focusPatId);
+    if (p) {
+      setFilter(p.category);
+      next(p.category, p);
+    }
+    onConsumeFocus?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusPatId]);
 
   const allSelected =
     sel.method !== undefined && sel.dist !== undefined && sel.df !== undefined;

@@ -22,6 +22,7 @@ const out: {
   steps: string[];
 }[] = [];
 let noVerify = 0;
+let nStage = 0;
 
 for (const tpl of templates) {
   const solver = SOLVERS[tpl.solver];
@@ -40,11 +41,23 @@ for (const tpl of templates) {
       steps: q.steps,
     });
     if (!q.verify) noVerify++;
+    // ステップ式問題: 各ステップも同じ照合・構造検査にかける
+    (q.stages ?? []).forEach((st, j) => {
+      out.push({
+        tpl: `${tpl.id}#step${j + 1}`,
+        solver: tpl.solver,
+        run: i,
+        verify: st.verify,
+        choices: st.choices.map((c) => c.text),
+        steps: st.explain,
+      });
+      nStage++;
+    });
   }
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
 writeFileSync(join(here, '.verify_dump.json'), JSON.stringify(out, null, 1));
 console.log(
-  `verify ダンプ: ${out.length}件（${templates.length}テンプレート × ${RUNS}回、verify無し ${noVerify}件）`,
+  `verify ダンプ: ${out.length}件（${templates.length}テンプレート × ${RUNS}回 + ステップ ${nStage}件、verify無し ${noVerify}件）`,
 );

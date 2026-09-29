@@ -1,20 +1,24 @@
 import { useMemo } from 'react';
 import cardsData from '../data/cards.json';
 import questionsData from '../data/questions.json';
+import patternsData from '../data/patterns.json';
+import type { Pattern } from '../types/Pattern';
 import type { Card } from '../types/Card';
 import type { QuestionTemplate } from '../types/Question';
 import type { Rating } from '../hooks/useRatings';
 import { RATING_LABELS, useRatings } from '../hooks/useRatings';
-import { useQuizStats } from '../hooks/useQuizStats';
+import { useDrillStats, useQuizStats } from '../hooks/useQuizStats';
 import { MISS_LABELS } from '../hooks/useQuizStats';
 import styles from './Weak.module.css';
 
 const cards = cardsData as Card[];
 const templates = questionsData as QuestionTemplate[];
+const patterns = patternsData as Pattern[];
 
 interface Props {
   reports: string[];
   onRetryTemplate: (tplId: string) => void;
+  onRetryPattern: (patId: string) => void;
   onOpenCard: (cardId: number) => void;
   onStartToday: () => void;
 }
@@ -28,11 +32,26 @@ const RATING_ORDER: Record<Rating, number> = {
 export default function Weak({
   reports,
   onRetryTemplate,
+  onRetryPattern,
   onOpenCard,
   onStartToday,
 }: Props) {
   const { ratings } = useRatings();
   const { stats } = useQuizStats();
+  const { stats: drillStats } = useDrillStats();
+
+  const weakPatterns = useMemo(
+    () =>
+      patterns
+        .map((p) => {
+          const s = drillStats[p.id];
+          const misses = s ? s.attempts - s.correct : 0;
+          return { p, s, misses };
+        })
+        .filter((x) => x.misses > 0)
+        .sort((a, b) => b.misses - a.misses),
+    [drillStats],
+  );
 
   const weakCards = useMemo(
     () =>
@@ -116,6 +135,38 @@ export default function Weak({
               onClick={() => onRetryTemplate(t.id)}
             >
               もう一度
+            </button>
+          </div>
+        ))}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.h2}>
+          判別ドリルの苦手パターン（{weakPatterns.length}）
+        </h2>
+        {weakPatterns.length === 0 && (
+          <p className={styles.empty}>
+            判別ドリルの誤答はまだありません。ドリルタブで解くと記録されます。
+          </p>
+        )}
+        {weakPatterns.map(({ p, s, misses }) => (
+          <div key={p.id} className={styles.row}>
+            <div className={styles.rowMain}>
+              <span className={styles.rowTitle}>
+                {p.method}
+                <span className={styles.cat}> {p.category}</span>
+              </span>
+              <span className={styles.rowSub}>
+                誤答{misses}回 / {s!.attempts}回・平均
+                {(s!.totalMs / s!.attempts / 1000).toFixed(1)}秒
+              </span>
+            </div>
+            <button
+              type="button"
+              className={styles.retry}
+              onClick={() => onRetryPattern(p.id)}
+            >
+              ドリルで練習
             </button>
           </div>
         ))}

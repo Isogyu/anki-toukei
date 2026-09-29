@@ -77,6 +77,11 @@ const CardSchema = z.object({
     .regex(/^\d+\.\d+$/)
     .optional(),
   refs: z.array(RefSchema).optional(),
+  symbol: z.string().min(1).optional(),
+  represents: z.string().min(1).optional(),
+  examples: z.array(z.string().min(1)).max(4).optional(),
+  related: z.array(z.string().min(1)).max(4).optional(),
+  focus: z.enum(['memorize', 'understand']).optional(),
 });
 
 const CardsSchema = z.array(CardSchema);
@@ -146,6 +151,23 @@ const PatternsSchema = z.array(PatternSchema);
 
 const errors: string[] = [];
 
+/** テキスト中の $...$ がすべて KaTeX でレンダリングできるか（Tex コンポーネントと同じ分割） */
+function checkInlineTex(text: string, where: string) {
+  const segs = text.split('$');
+  if (segs.length % 2 === 0) {
+    errors.push(`${where}: $ の数が奇数（数式が閉じていない）: ${text}`);
+    return;
+  }
+  for (let i = 1; i < segs.length; i += 2) {
+    try {
+      katex.renderToString(segs[i], { throwOnError: true });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      errors.push(`${where}: KaTeX エラー「${segs[i]}」: ${msg}`);
+    }
+  }
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = resolve(__dirname, '../src/data');
 
@@ -212,6 +234,23 @@ if (parsed.success) {
       errors.push(
         `category「${cat}」の枚数が不足: ${n} < 最低${MIN_COUNTS[cat]}`,
       );
+    }
+  }
+
+  // symbol が KaTeX でレンダリング可能・examples/related のインライン数式
+  for (const c of cards) {
+    if (c.symbol) {
+      try {
+        katex.renderToString(c.symbol, { throwOnError: true });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        errors.push(
+          `id=${c.id}「${c.title}」のsymbolがKaTeXでレンダリング不可: ${msg}`,
+        );
+      }
+    }
+    for (const t of [...(c.examples ?? []), ...(c.related ?? [])]) {
+      checkInlineTex(t, `card id=${c.id}`);
     }
   }
 
@@ -302,6 +341,42 @@ if (!parsedQ.success) {
           errors.push(`${q.id}: 正解が ${nCorrect} 個 seed=${seed}`);
         }
         if (gen.steps.length === 0) errors.push(`${q.id}: steps が空`);
+        const tag = `${q.id} seed=${seed}`;
+        checkInlineTex(gen.text, `${tag} text`);
+        gen.choices.forEach((c) => checkInlineTex(c.text, `${tag} choice`));
+        gen.steps.forEach((st) => checkInlineTex(st, `${tag} step`));
+
+        // ステップ式問題の構造
+        if (gen.stages) {
+          if (gen.stages.length === 0) errors.push(`${tag}: stages が空配列`);
+          if (!gen.stem || !gen.finalPrompt) {
+            errors.push(`${tag}: stages があるのに stem / finalPrompt がない`);
+          } else {
+            checkInlineTex(gen.stem, `${tag} stem`);
+            checkInlineTex(gen.finalPrompt, `${tag} finalPrompt`);
+            if (!gen.text.startsWith(gen.stem)) {
+              errors.push(`${tag}: text は stem から始まる単体問題であること`);
+            }
+          }
+          gen.stages.forEach((st, j) => {
+            const stag = `${tag} step${j + 1}`;
+            const sn = st.choices.length;
+            if (sn < 3 || sn > 5) errors.push(`${stag}: 選択肢が ${sn} 個`);
+            const stx = st.choices.map((c) => c.text);
+            if (new Set(stx).size !== stx.length) {
+              errors.push(`${stag}: 選択肢が重複 ${JSON.stringify(stx)}`);
+            }
+            const sc = st.choices.filter((c) => c.correct).length;
+            if (sc !== 1) errors.push(`${stag}: 正解が ${sc} 個`);
+            if (st.choices.some((c) => !c.correct && !c.why)) {
+              errors.push(`${stag}: 誤答に理由(why)がない`);
+            }
+            if (st.explain.length === 0) errors.push(`${stag}: 解説が空`);
+            checkInlineTex(st.prompt, `${stag} prompt`);
+            stx.forEach((t) => checkInlineTex(t, `${stag} choice`));
+            st.explain.forEach((t) => checkInlineTex(t, `${stag} explain`));
+          });
+        }
       } catch (e) {
         errors.push(`${q.id}: solver 実行で例外 seed=${seed}: ${e}`);
       }
