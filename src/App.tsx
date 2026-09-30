@@ -22,6 +22,7 @@ function App() {
   const [tab, setTab] = useState<Tab>('cards');
   const [focusCardId, setFocusCardId] = useState<number | null>(null);
   const [focusTplId, setFocusTplId] = useState<string | null>(null);
+  const [focusPatId, setFocusPatId] = useState<string | null>(null);
   const [session, setSession] = useState<SessionItem[] | null>(null);
 
   const { reports, toggle: toggleReport, isReported } = useReports();
@@ -42,6 +43,11 @@ function App() {
   const retryTemplate = useCallback((tplId: string) => {
     setFocusTplId(tplId);
     setTab('quiz');
+  }, []);
+
+  const retryPattern = useCallback((patId: string) => {
+    setFocusPatId(patId);
+    setTab('drill');
   }, []);
 
   if (session) {
@@ -71,7 +77,12 @@ function App() {
         />
       )}
       {tab === 'drill' && (
-        <Drill isReported={isReported} onToggleReport={toggleReport} />
+        <Drill
+          focusPatId={focusPatId}
+          onConsumeFocus={() => setFocusPatId(null)}
+          isReported={isReported}
+          onToggleReport={toggleReport}
+        />
       )}
       {tab === 'quiz' && (
         <Quiz
@@ -85,6 +96,7 @@ function App() {
         <Weak
           reports={reports}
           onRetryTemplate={retryTemplate}
+          onRetryPattern={retryPattern}
           onOpenCard={openCard}
           onStartToday={startToday}
         />

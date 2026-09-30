@@ -74,6 +74,19 @@ import {
 } from './regression';
 import { concept } from './concept';
 import {
+  dist_moments,
+  std_z,
+  std_prob,
+  xbar_std,
+  binom_norm_calc,
+  flow_binom,
+  flow_xbar,
+  flow_poisson,
+  flow_binom_poisson,
+  flow_normal,
+  flow_infer,
+} from './distflow';
+import {
   chart_hist,
   chart_box,
   chart_scatter,
@@ -145,6 +158,17 @@ export const SOLVERS: Record<string, SolverFn> = {
   reg_anova,
   ma_calc,
   concept,
+  dist_moments,
+  std_z,
+  std_prob,
+  xbar_std,
+  binom_norm_calc,
+  flow_binom,
+  flow_xbar,
+  flow_poisson,
+  flow_binom_poisson,
+  flow_normal,
+  flow_infer,
   chart_hist,
   chart_box,
   chart_scatter,
@@ -153,4 +177,4 @@ export const SOLVERS: Record<string, SolverFn> = {
   chart_cumfreq,
 };
 
-export type { SolvedQuestion, Choice, ConceptItem } from './types';
+export type { SolvedQuestion, Choice, ConceptItem, Stage } from './types';

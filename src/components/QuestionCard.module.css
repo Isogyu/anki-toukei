@@ -173,3 +173,76 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- ステップ式問題 ---- */
+.stageBar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stageDot {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #cccccc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #666666;
+}
+
+.dotCur {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.dotOk {
+  border-color: #15803d;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.dotNg {
+  border-color: #b91c1c;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.stageDone {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #333333;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.stageDoneText {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.okMark,
+.ngMark {
+  flex-shrink: 0;
+}
+
+.stageBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stagePrompt {
+  margin: 0;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.5;
+}

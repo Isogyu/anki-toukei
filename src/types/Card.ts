@@ -25,7 +25,20 @@ export interface Card {
   ohm?: string; // オーム社『統計検定2級完全対策テキスト』節番号 例 "6-2"
   official?: string; // 公式テキスト『改訂版 統計学基礎』節番号 例 "4.4"
   refs?: string[]; // 参照URL（任意）
+  // --- 以下は分布まとめカード等で使う任意フィールド（なければ表示しない） ---
+  symbol?: string; // 表面に出す記号（LaTeX）例 "X\\sim B(n,p)"
+  represents?: string; // 表面に出す「何を表すか」
+  examples?: string[]; // 典型的な問題文
+  related?: string[]; // 関連する分布・概念
+  focus?: CardFocus; // 学習の仕方: 暗記優先 / 理解優先
 }
+
+export type CardFocus = 'memorize' | 'understand';
+
+export const FOCUS_LABELS: Record<CardFocus, string> = {
+  memorize: '暗記優先',
+  understand: '理解優先',
+};
 
 export const CATEGORIES: Category[] = [
   '記述統計',

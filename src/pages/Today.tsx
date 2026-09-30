@@ -110,9 +110,8 @@ export default function Today({
         <QuestionCard
           q={q!}
           answered={answered}
-          onAnswer={(i) => {
+          onAnswer={(i, ok) => {
             setAnswered(i);
-            const ok = q!.choices[i].correct;
             record(item.template.id, ok);
             setDoneQ((d) => ({
               n: d.n + 1,
